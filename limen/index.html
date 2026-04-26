@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Limen — Auth for Go that doesn't dictate your stack</title>
+    <meta name="description" content="A modern, composable auth library for Go. Sessions, plugins, OAuth — idiomatic Go, plugin-first DX." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Newsreader:ital@0;1&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0a0a;
+        --bg-2: #111;
+        --bg-3: #161616;
+        --line: #232323;
+        --line-2: #2a2a2a;
+        --text: #e8e8e8;
+        --text-soft: #b6b6b6;
+        --muted: #757575;
+        --muted-2: #535353;
+        --accent: #d4ff32;       /* highlighter chartreuse */
+        --accent-soft: rgba(212, 255, 50, 0.10);
+        --gopher: #00add8;        /* Go blue */
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: Geist, ui-sans-serif, system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.55;
+        font-size: 15px;
+        -webkit-font-smoothing: antialiased;
+      }
+      a { color: inherit; text-decoration: none; }
+      .wrap { width: min(1100px, calc(100% - 40px)); margin: 0 auto; }
+      code, pre { font-family: 'Geist Mono', ui-monospace, monospace; }
+
+      .nav {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 22px 0; border-bottom: 1px solid var(--line);
+      }
+      .brand {
+        display: flex; align-items: center; gap: 10px;
+        font-weight: 700; font-size: 17px; letter-spacing: -0.01em;
+      }
+      .brand-mark {
+        width: 24px; height: 24px;
+        background: var(--accent); color: var(--bg);
+        border-radius: 5px;
+        display: grid; place-items: center;
+        font-family: 'Geist Mono', monospace;
+        font-weight: 700; font-size: 14px;
+      }
+      .v {
+        display: inline-block; margin-left: 6px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 11px; color: var(--muted-2);
+        font-weight: 500;
+      }
+      .nav-links { display: flex; gap: 22px; color: var(--text-soft); font-size: 14px; }
+      .nav-right { display: flex; gap: 16px; align-items: center; }
+      .stars {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 7px 12px; border-radius: 8px;
+        background: var(--bg-2); border: 1px solid var(--line);
+        font-family: 'Geist Mono', monospace;
+        font-size: 12px;
+      }
+      .stars .star { color: var(--accent); }
+
+      /* hero */
+      .hero { padding: 80px 0 70px; text-align: center; max-width: 880px; margin: 0 auto; }
+      .eyebrow {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 5px 12px; border-radius: 999px;
+        background: var(--accent-soft); border: 1px solid rgba(212, 255, 50, 0.30);
+        font-family: 'Geist Mono', monospace;
+        font-size: 11px; letter-spacing: 0.06em;
+        color: var(--accent);
+        margin-bottom: 26px;
+      }
+      h1 {
+        font-family: Geist, sans-serif;
+        font-size: clamp(40px, 6vw, 76px);
+        line-height: 1.02; letter-spacing: -0.03em;
+        font-weight: 700;
+        margin-bottom: 22px;
+      }
+      h1 em {
+        font-family: Newsreader, serif;
+        font-style: italic; font-weight: 400;
+        color: var(--accent);
+      }
+      .lede {
+        font-size: 19px; color: var(--text-soft);
+        max-width: 60ch; margin: 0 auto 32px;
+      }
+      .hero-cta {
+        display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+        margin-bottom: 36px;
+      }
+      .btn {
+        display: inline-flex; align-items: center; gap: 9px;
+        padding: 12px 18px; border-radius: 9px;
+        background: var(--accent); color: var(--bg);
+        font-weight: 600; font-size: 14px;
+        border: 1px solid var(--accent);
+        transition: transform 0.1s;
+      }
+      .btn:hover { transform: translateY(-1px); }
+      .btn.ghost {
+        background: var(--bg-2); color: var(--text);
+        border-color: var(--line);
+      }
+      .btn .arr { font-family: 'Geist Mono', monospace; }
+
+      .install {
+        display: inline-flex; align-items: center; gap: 0;
+        background: var(--bg-2); border: 1px solid var(--line);
+        border-radius: 8px;
+        font-family: 'Geist Mono', monospace; font-size: 13px;
+        margin-bottom: 8px;
+      }
+      .install-prompt { color: var(--muted); padding: 10px 0 10px 14px; }
+      .install-cmd { padding: 10px 14px 10px 8px; color: var(--text); }
+      .install-copy {
+        padding: 10px 12px; border-left: 1px solid var(--line);
+        color: var(--muted); cursor: pointer; font-size: 11px;
+        background: var(--bg-3);
+      }
+      .install-copy:hover { color: var(--accent); }
+      .meta-pills {
+        display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;
+        font-family: 'Geist Mono', monospace; font-size: 11px;
+        color: var(--muted); margin-top: 10px;
+      }
+      .meta-pills span { display: inline-flex; gap: 5px; align-items: center; }
+      .meta-pills .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+      /* code feature block */
+      .code-feature {
+        background: var(--bg-2);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 22px 24px;
+        margin: 60px auto;
+        max-width: 980px;
+      }
+      .cf-tabs {
+        display: flex; gap: 4px; margin-bottom: 14px;
+        font-family: 'Geist Mono', monospace; font-size: 12px;
+      }
+      .cf-tab {
+        padding: 6px 12px; border-radius: 6px;
+        background: var(--bg-3); color: var(--muted);
+        border: 1px solid transparent;
+      }
+      .cf-tab.active {
+        background: var(--bg); color: var(--text);
+        border-color: var(--line);
+      }
+      pre.code {
+        background: var(--bg);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px 22px;
+        overflow-x: auto;
+        font-size: 13px;
+        line-height: 1.65;
+        color: var(--text-soft);
+      }
+      .kw { color: #ff7a85; }     /* keywords */
+      .pkg { color: var(--gopher); }
+      .str { color: #d4ff32; }
+      .cm { color: var(--muted-2); }
+      .fn { color: #ffd166; }
+      .num { color: #c4a7ff; }
+
+      /* sections */
+      section { padding: 70px 0; border-top: 1px solid var(--line); }
+      .section-head {
+        max-width: 700px; margin: 0 auto 50px; text-align: center;
+      }
+      .kicker {
+        font-family: 'Geist Mono', monospace; font-size: 11px;
+        text-transform: uppercase; letter-spacing: 0.18em;
+        color: var(--accent); margin-bottom: 14px;
+      }
+      h2 {
+        font-family: Geist, sans-serif;
+        font-size: clamp(30px, 4vw, 44px);
+        line-height: 1.05; letter-spacing: -0.02em;
+        font-weight: 700; margin-bottom: 14px;
+      }
+      h2 em { font-family: Newsreader, serif; font-style: italic; font-weight: 400; color: var(--accent); }
+      .section-head p { color: var(--text-soft); font-size: 17px; max-width: 56ch; margin: 0 auto; }
+
+      .features {
+        display: grid; grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+      }
+      .feature {
+        background: var(--bg-2);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 26px;
+      }
+      .feature .ic {
+        font-family: 'Geist Mono', monospace;
+        font-size: 11px; font-weight: 700;
+        color: var(--accent); margin-bottom: 12px;
+        letter-spacing: 0.06em;
+      }
+      .feature h3 {
+        font-size: 17px; font-weight: 600;
+        margin-bottom: 8px; letter-spacing: -0.01em;
+      }
+      .feature p { color: var(--text-soft); font-size: 14px; }
+      .feature p code {
+        background: var(--bg-3); padding: 1px 6px; border-radius: 4px;
+        font-size: 12px;
+      }
+
+      /* plugins */
+      .plugins {
+        display: grid; grid-template-columns: 220px 1fr;
+        gap: 36px; align-items: start;
+      }
+      .plugin-list {
+        display: grid; gap: 8px;
+      }
+      .plugin-item {
+        display: flex; align-items: center; gap: 10px;
+        padding: 11px 14px;
+        background: var(--bg-2); border: 1px solid var(--line);
+        border-radius: 8px;
+        font-family: 'Geist Mono', monospace; font-size: 13px;
+        cursor: pointer;
+      }
+      .plugin-item.active {
+        background: var(--accent-soft); border-color: var(--accent);
+        color: var(--accent);
+      }
+      .plugin-item .stat {
+        margin-left: auto; font-size: 10px; color: var(--muted);
+      }
+      .plugin-item.active .stat { color: var(--accent); }
+
+      .plugin-detail {
+        background: var(--bg-2); border: 1px solid var(--line);
+        border-radius: 12px; padding: 24px;
+      }
+      .plugin-detail h4 {
+        font-size: 15px; font-weight: 600; margin-bottom: 6px;
+      }
+      .plugin-detail p { color: var(--text-soft); font-size: 14px; margin-bottom: 16px; }
+
+      /* comparison */
+      .vs {
+        background: var(--bg-2); border: 1px solid var(--line);
+        border-radius: 14px; overflow: hidden;
+      }
+      .vs-row {
+        display: grid; grid-template-columns: 1.1fr 1fr 1fr;
+        border-bottom: 1px solid var(--line);
+        font-size: 14px;
+      }
+      .vs-row:last-child { border-bottom: 0; }
+      .vs-row > div { padding: 16px 22px; }
+      .vs-row .label { color: var(--muted); }
+      .vs-row .other { color: var(--text-soft); }
+      .vs-row .limen {
+        background: var(--accent-soft);
+        color: var(--text); font-weight: 500;
+      }
+      .vs-head {
+        font-family: 'Geist Mono', monospace; font-size: 11px;
+        text-transform: uppercase; letter-spacing: 0.14em;
+      }
+      .vs-head .label { color: var(--muted); }
+      .vs-head .other { color: var(--text-soft); }
+      .vs-head .limen { color: var(--accent); font-weight: 700; }
+
+      /* footer */
+      footer {
+        padding: 50px 0 70px; border-top: 1px solid var(--line);
+        color: var(--muted); font-size: 13px;
+      }
+      footer .row {
+        display: flex; justify-content: space-between; gap: 30px; flex-wrap: wrap;
+      }
+      footer a { color: var(--text-soft); }
+      footer a:hover { color: var(--accent); }
+      .credit-banner {
+        background: var(--accent-soft);
+        border: 1px solid rgba(212, 255, 50, 0.30);
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-top: 24px;
+        font-size: 13px;
+        color: var(--text-soft);
+      }
+      .credit-banner strong { color: var(--accent); }
+      .credit-banner a { color: var(--accent); text-decoration: underline; }
+
+      @media (max-width: 800px) {
+        .features { grid-template-columns: 1fr; }
+        .plugins { grid-template-columns: 1fr; }
+        .vs-row { grid-template-columns: 1fr; }
+        .vs-row > div { padding: 12px 16px; border-bottom: 1px solid var(--line-2); }
+        .nav-links { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="nav">
+        <a class="brand" href="#">
+          <span class="brand-mark">L</span>
+          Limen
+          <span class="v">v0.1.0</span>
+        </a>
+        <nav class="nav-links">
+          <a href="#what">What</a>
+          <a href="#code">Code</a>
+          <a href="#plugins">Plugins</a>
+          <a href="#vs">vs better-auth</a>
+        </nav>
+        <div class="nav-right">
+          <a class="stars" href="https://github.com/thecodearcher/limen">
+            <span class="star">★</span> Star · GitHub
+          </a>
+        </div>
+      </header>
+
+      <section class="hero" style="border-top: 0; padding: 80px 0 70px;">
+        <div class="eyebrow">▲ JUST RELEASED · v0.1.0</div>
+        <h1>
+          Auth for Go<br/>
+          that doesn't <em>dictate your stack.</em>
+        </h1>
+        <p class="lede">
+          Limen handles sessions, cookies, and security primitives. Auth methods —
+          credentials, OAuth providers, 2FA — drop in as plugins. Idiomatic Go,
+          plugin-first DX, no framework lock-in.
+        </p>
+        <div class="hero-cta">
+          <div class="install">
+            <span class="install-prompt">$&nbsp;</span>
+            <span class="install-cmd">go get github.com/thecodearcher/limen</span>
+            <span class="install-copy" onclick="navigator.clipboard.writeText('go get github.com/thecodearcher/limen'); this.textContent='copied'; setTimeout(()=>this.textContent='copy', 1200)">copy</span>
+          </div>
+        </div>
+        <div class="hero-cta">
+          <a href="https://limenauth.dev/blog/introducing-limen" class="btn ghost">Read the launch post <span class="arr">↗</span></a>
+          <a href="https://github.com/thecodearcher/limen" class="btn">Browse the source <span class="arr">↗</span></a>
+        </div>
+        <div class="meta-pills">
+          <span><span class="dot"></span>idiomatic <code>http.Handler</code></span>
+          <span><span class="dot"></span>plugin-first DX</span>
+          <span><span class="dot"></span>no DB tied in</span>
+          <span><span class="dot"></span>MIT licensed</span>
+        </div>
+      </section>
+
+      <div class="code-feature" id="code">
+        <div class="cf-tabs">
+          <span class="cf-tab active">main.go</span>
+          <span class="cf-tab">credential plugin</span>
+          <span class="cf-tab">oauth plugin</span>
+        </div>
+<pre class="code"><span class="kw">package</span> main
+
+<span class="kw">import</span> (
+    <span class="str">"net/http"</span>
+
+    <span class="str">"github.com/thecodearcher/limen"</span>
+    <span class="str">"github.com/thecodearcher/limen/plugins/credential"</span>
+    <span class="str">"github.com/thecodearcher/limen/plugins/oauth"</span>
+)
+
+<span class="kw">func</span> <span class="fn">main</span>() {
+    <span class="cm">// 1. configure once: sessions + cookies + security primitives</span>
+    auth := limen.<span class="fn">New</span>(limen.Config{
+        SessionStore: limen.<span class="fn">MemoryStore</span>(),  <span class="cm">// or your own</span>
+        CookieName:   <span class="str">"limen_session"</span>,
+        SignKey:      []<span class="kw">byte</span>(<span class="fn">os</span>.<span class="fn">Getenv</span>(<span class="str">"SIGN_KEY"</span>)),
+    })
+
+    <span class="cm">// 2. compose plugins — bring only what you need</span>
+    auth.<span class="fn">Use</span>(credential.<span class="fn">New</span>(credential.Config{
+        Verify: <span class="fn">verifyUserPassword</span>,           <span class="cm">// you own the DB</span>
+    }))
+    auth.<span class="fn">Use</span>(oauth.<span class="fn">Google</span>(oauth.GoogleConfig{
+        ClientID:     <span class="fn">os</span>.<span class="fn">Getenv</span>(<span class="str">"GOOGLE_ID"</span>),
+        ClientSecret: <span class="fn">os</span>.<span class="fn">Getenv</span>(<span class="str">"GOOGLE_SECRET"</span>),
+    }))
+
+    <span class="cm">// 3. mount as a standard http.Handler — no framework imposed</span>
+    http.<span class="fn">Handle</span>(<span class="str">"/auth/"</span>, auth)
+    http.<span class="fn">ListenAndServe</span>(<span class="str">":8080"</span>, <span class="kw">nil</span>)
+}</pre>
+      </div>
+
+      <section id="what">
+        <div class="wrap">
+          <div class="section-head">
+            <div class="kicker">why limen</div>
+            <h2>Auth that <em>composes</em>, not auth that <em>configures.</em></h2>
+            <p>Most Go auth libraries are either too thin (you write the session layer yourself) or too thick (you adopt their entire stack). Limen does the dangerous parts once and lets you bring everything else.</p>
+          </div>
+          <div class="features">
+            <div class="feature">
+              <div class="ic">01 / CORE</div>
+              <h3>Session, cookie, signing — handled.</h3>
+              <p>The parts that are easy to get subtly wrong (cookie flags, signing rotation, CSRF binding) live in the core and stay there.</p>
+            </div>
+            <div class="feature">
+              <div class="ic">02 / PLUGINS</div>
+              <h3>Auth methods are just <code>limen.Plugin</code>.</h3>
+              <p>Credentials, OAuth, 2FA today. Magic links, passkeys, SAML when you need them. Same interface, no special cases.</p>
+            </div>
+            <div class="feature">
+              <div class="ic">03 / NO LOCK-IN</div>
+              <h3>You own the database.</h3>
+              <p>Limen never talks to your DB directly. You hand it a <code>Verify</code> func; it stays out of your model layer.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="plugins">
+        <div class="wrap">
+          <div class="section-head">
+            <div class="kicker">plugins shipping in v0.1</div>
+            <h2><em>Three plugins</em> covering the 80% case.</h2>
+            <p>Each plugin is its own Go module — import what you use, nothing more.</p>
+          </div>
+          <div class="plugins">
+            <div class="plugin-list">
+              <div class="plugin-item active">credential <span class="stat">42 LoC</span></div>
+              <div class="plugin-item">oauth/google <span class="stat">88 LoC</span></div>
+              <div class="plugin-item">oauth/github <span class="stat">71 LoC</span></div>
+              <div class="plugin-item">2fa/totp <span class="stat">54 LoC</span></div>
+              <div class="plugin-item" style="opacity:0.5">passkeys <span class="stat">soon</span></div>
+              <div class="plugin-item" style="opacity:0.5">magic-link <span class="stat">soon</span></div>
+            </div>
+            <div class="plugin-detail">
+              <h4>plugins/credential</h4>
+              <p>Username + password auth. Limen handles hashing, timing-safe comparison, lockout, and the session handoff. You hand it one function: "given a username + password, return a user ID."</p>
+<pre class="code">credential.<span class="fn">New</span>(credential.Config{
+    Verify: <span class="kw">func</span>(ctx <span class="pkg">context</span>.Context, u, p <span class="kw">string</span>) (<span class="kw">string</span>, <span class="kw">error</span>) {
+        user, err := db.<span class="fn">FindByEmail</span>(ctx, u)
+        <span class="kw">if</span> err != <span class="kw">nil</span> { <span class="kw">return</span> <span class="str">""</span>, err }
+        <span class="kw">if</span> !user.<span class="fn">CheckPassword</span>(p) { <span class="kw">return</span> <span class="str">""</span>, limen.ErrInvalidCreds }
+        <span class="kw">return</span> user.ID, <span class="kw">nil</span>
+    },
+    LockoutAfter: <span class="num">5</span>,
+})</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="vs">
+        <div class="wrap">
+          <div class="section-head">
+            <div class="kicker">honest comparison</div>
+            <h2>vs. <em>better-auth</em> (the inspiration).</h2>
+            <p>Limen owes its plugin DX to better-auth. It also makes different trade-offs because Go has different idioms.</p>
+          </div>
+          <div class="vs">
+            <div class="vs-row vs-head">
+              <div class="label">aspect</div>
+              <div class="other">better-auth (TS)</div>
+              <div class="limen">limen (Go)</div>
+            </div>
+            <div class="vs-row">
+              <div class="label">extension surface</div>
+              <div class="other">framework adapters + plugins</div>
+              <div class="limen">just <code>limen.Plugin</code> — one interface</div>
+            </div>
+            <div class="vs-row">
+              <div class="label">database coupling</div>
+              <div class="other">opinionated; expects schema</div>
+              <div class="limen">none — you hand in a <code>Verify</code> func</div>
+            </div>
+            <div class="vs-row">
+              <div class="label">handler integration</div>
+              <div class="other">framework-specific</div>
+              <div class="limen">stdlib <code>http.Handler</code></div>
+            </div>
+            <div class="vs-row">
+              <div class="label">ecosystem maturity</div>
+              <div class="other">large, battle-tested</div>
+              <div class="limen">v0.1.0 — small, focused, growing</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style="text-align: center;">
+        <div class="wrap" style="max-width: 720px;">
+          <div class="kicker">try it</div>
+          <h2>Drop it into your <em>next Go service.</em></h2>
+          <p style="color: var(--text-soft); font-size: 17px; margin-bottom: 30px;">
+            Read the <a href="https://limenauth.dev/blog/introducing-limen" style="color: var(--accent); text-decoration: underline;">launch post</a> for the design rationale, or jump straight to the source.
+          </p>
+          <div class="hero-cta" style="margin-bottom: 0;">
+            <div class="install">
+              <span class="install-prompt">$&nbsp;</span>
+              <span class="install-cmd">go get github.com/thecodearcher/limen</span>
+              <span class="install-copy" onclick="navigator.clipboard.writeText('go get github.com/thecodearcher/limen'); this.textContent='copied'; setTimeout(()=>this.textContent='copy', 1200)">copy</span>
+            </div>
+            <a href="https://github.com/thecodearcher/limen" class="btn">Open on GitHub <span class="arr">↗</span></a>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <div class="row">
+          <div>
+            <strong style="color: var(--text);">Limen</strong> — auth for Go. v0.1.0 · MIT.<br/>
+            <a href="https://github.com/thecodearcher/limen">github.com/thecodearcher/limen</a>
+          </div>
+          <div>
+            <a href="https://limenauth.dev">limenauth.dev</a> · <a href="https://github.com/thecodearcher">@thecodearcher</a>
+          </div>
+        </div>
+        <div class="credit-banner">
+          <strong>This is a v0 marketing landing for Limen, drafted in 45 minutes.</strong>
+          It's a <a href="https://kiluazen.github.io/bidsmith-case-lighthouse-spec/">bidsmith</a> case study —
+          the premise is that the right pitch on a public surface (Show HN, freelance bid, etc.) is the work itself, not a description of it.
+          Brian — take this. It's yours. If it's a useful direction and you want a ship-ready pass, reply.
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
