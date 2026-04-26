@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kiluazen.github.io/bidsmith-case-lighthouse-spec/sitemap.xml
