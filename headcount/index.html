@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bidsmith case study — a real Upwork-style brief, taken to a deployed page in 25 minutes</title>
-    <meta name="description" content="What it looks like when an Upwork bid ships the work, not the promise." />
+    <title>Bidsmith case study #002 — a real Upwork dashboard brief, taken to a deployed page in 30 minutes</title>
+    <meta name="description" content="A real Upwork brief that was getting trashed for AI-slop replies. Bidsmith ships the work instead." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -35,6 +35,11 @@
       .nav { display: flex; justify-content: space-between; padding-bottom: 20px; }
       .brand { font-weight: 700; text-decoration: none; }
       .brand .smith { color: var(--accent); }
+      .nav .other {
+        color: var(--muted); text-decoration: none; font-size: 14px;
+        font-family: 'JetBrains Mono', monospace;
+      }
+      .nav .other:hover { color: var(--ink); }
 
       .kicker {
         font-family: 'JetBrains Mono', monospace; font-size: 11px;
@@ -74,6 +79,11 @@
         font-size: 13px; line-height: 1.65;
         color: var(--ink-soft);
         margin: 0; white-space: pre-wrap;
+      }
+      .panel pre.bad {
+        border-left-color: var(--muted-2);
+        color: var(--muted);
+        font-style: italic;
       }
 
       .meta {
@@ -121,6 +131,26 @@
       }
       .proof strong { font-style: normal; color: var(--ink); font-weight: 700; }
 
+      .receipts {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 22px 26px;
+        margin: 30px 0;
+      }
+      .receipts h3 {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em;
+        color: var(--muted); margin: 0 0 14px;
+      }
+      .receipts ul {
+        margin: 0; padding-left: 20px;
+        color: var(--ink-soft);
+        font-size: 14.5px;
+      }
+      .receipts li { margin-bottom: 6px; }
+      .receipts li em { color: var(--accent); font-style: italic; }
+
       .cta {
         background: var(--ink); color: var(--paper);
         border-radius: 14px; padding: 36px;
@@ -154,69 +184,91 @@
   <body>
     <div class="wrap">
       <nav class="nav">
-        <a class="brand" href="https://bidsmith.kushalsm.com">bid<span class="smith">smith</span> · case study #001</a>
-        <a href="./headcount/" style="color: var(--muted); text-decoration: none; font-size: 14px; font-family: 'JetBrains Mono', monospace;">case #002 · dashboard ↦</a>
+        <a class="brand" href="https://bidsmith.kushalsm.com">bid<span class="smith">smith</span> · case study #002</a>
+        <a class="other" href="../">↤ case #001 · landing</a>
       </nav>
 
-      <div class="kicker">case study #001 · 2026-04-26</div>
-      <h1>An Upwork-style brief, taken from <em>"send me a quote"</em> to a deployed landing in 25 minutes.</h1>
+      <div class="kicker">case study #002 · 2026-04-26</div>
+      <h1>The bid that was getting <em>publicly trashed for AI slop</em>. What we'd have sent instead.</h1>
       <p class="lede">
-        Most Upwork bids on a job like this one open with "I have 5+ years of experience in landing pages
-        and would love to discuss." This is what bidsmith does instead.
+        A r/Upwork freelancer posted their bid for a real headcount-dashboard job. The thread agreed: the
+        bid was generic AI output, "straight into archive". This is what bidsmith sends instead.
       </p>
 
       <div class="meta">
-        <div class="meta-cell"><div class="k">brief shape</div><div class="v">SaaS landing</div></div>
-        <div class="meta-cell"><div class="k">artifact</div><div class="v">Deployed page</div></div>
-        <div class="meta-cell"><div class="k">time-to-deploy</div><div class="v">25 min</div></div>
+        <div class="meta-cell"><div class="k">brief shape</div><div class="v">Exec dashboard</div></div>
+        <div class="meta-cell"><div class="k">artifact</div><div class="v">Live SVG dashboard</div></div>
+        <div class="meta-cell"><div class="k">time-to-deploy</div><div class="v">30 min</div></div>
       </div>
 
       <div class="panel">
-        <h2>The brief</h2>
-        <p>This is a fabricated-but-typical Upwork landing-page brief. It is the genre — opinionated indie SaaS, fixed budget, fast turnaround — that the bidsmith pitch is sharpest for.</p>
-        <pre>Looking for a freelancer to build the marketing landing for our new product, Lighthouse Spec. We help small product teams turn rough Notion docs into clean, stakeholder-ready specs.
-
-Need:
-- A single-page landing
-- Strong hero, 3 value props, how-it-works, pricing (Free / $19 Pro / Team-quoted), contact form
-- Modern, opinionated design — not a startup template
-
-Budget: $400-600 fixed.
-Need it in 5 days.</pre>
+        <h2>The brief <em>(real, paraphrased from a public r/Upwork post)</em></h2>
+        <p>This is a real Upwork job a freelancer was bidding on. Posted publicly to r/Upwork on 2026-04-19. Lightly cleaned for grammar — the substance is verbatim.</p>
+        <pre>I am looking to create a professional executive dashboard for headcount tracking for my team — scalable and auto-updated. Let me know if you can help.</pre>
       </div>
 
       <div class="panel">
-        <h2>The artifact <em>(open in a new tab)</em></h2>
-        <p>A real deployed page — copy, type, layout, contact form, all of it. This is the file that would be attached to the bid as <code>landing.html</code>, plus a hosted preview link.</p>
-        <a href="./landing/" target="_blank" class="open-btn">Open the deployed landing <span class="arr">↗</span></a>
-        <p style="font-size: 14px; color: var(--muted); margin-top: 8px;">Hosted alongside this case study on GitHub Pages. Single HTML file, no dependencies.</p>
+        <h2>The bid that was being trashed <em>(also real)</em></h2>
+        <p>This is the actual proposal the freelancer attached. It's competently written. r/Upwork's verdict, in their own words:</p>
+        <pre class="bad">"Your requirement isn't just a dashboard — it's a reliable way to track headcount without constant manual fixes.
+
+Most dashboards fail here because data pipelines aren't structured properly.
+
+I'd approach this by:
+- Designing a clean data model (so scaling doesn't break reports)
+- Setting up automated refresh from your source
+- Building measures that actually reflect workforce changes (not just static counts)
+
+I've built a workforce dashboard where poor data structure was causing inconsistent headcount reporting — fixed that by restructuring the model and automation layer.
+
+Quick question: how is your headcount data currently maintained — static files or a live system?"</pre>
+        <p style="margin-top: 16px;">r/Upwork comments, verbatim:</p>
+        <pre class="bad">"It's obviously AI generated. I wouldn't consider you."
+"Straight into the archive bucket. Dumb AI drivel."
+"AI slop, but it's bad even for AI slop."
+"AI proposal, so obvious."</pre>
+      </div>
+
+      <div class="panel">
+        <h2>The artifact bidsmith sends instead</h2>
+        <p>Open the dashboard — it's a real, deployed, navigable executive view of headcount. The bid attaches this URL plus the HTML file. The client clicks it before reading any sentence about the freelancer.</p>
+        <a href="./dashboard/" target="_blank" class="open-btn">Open the live dashboard <span class="arr">↗</span></a>
+        <p style="font-size: 14px; color: var(--muted); margin-top: 8px;">Single static file, no dependencies, designed to be the "v0" the client argues with.</p>
       </div>
 
       <div class="panel">
         <h2>The proposal copy that gets attached</h2>
-        <p>Two short paragraphs and a link. Not a cover letter.</p>
+        <p>Three sentences. The artifact does the work.</p>
         <pre>Hi —
 
-I read your brief and built the first version of Lighthouse Spec's landing in
-25 minutes. Live preview here: [link]. The HTML file is attached to this bid.
+I built a working v0 of your headcount dashboard. Live preview here: [link].
+Static file is attached.
 
-The opinionated calls I made (so you can argue with them before I do more):
-- Hero leads on "rough Notion doc" pain, not "AI-powered specs"
-- Pricing is 3 tiers with a real "Team quoted" — no fake enterprise gate
-- Contact form is one question: "send your messiest doc"
+The opinionated calls (so you can argue with them now, not on revision 4):
+- The "auto-updated" promise is shown as a sync pill, not a feature bullet
+- Default view is tracked vs. plan, because that's the only number an exec asks for
+- Movements table sits below the chart, because the *why* of a delta matters more than the *what*
 
-If the artifact is in the right ballpark, I'd love to take it from v0 to
-ship-ready: real form backend, your brand, copy edits, mobile polish. My
-$ would land at the lower end of your range.
+If the v0 is in the right shape, I'd take it to ship-ready: real HRIS sync,
+your brand, role-based views. Land at the lower end of your range.
 
-— Kushal</pre>
+— [your name]</pre>
       </div>
 
       <div class="proof">
-        Why this works: the bid <strong>opens with the work</strong>. The client clicks the preview link
-        before reading any sentence about the freelancer. The decision the client has to make goes from
-        "do I trust this person?" to "do I want this version, or do I want a different version?". That
-        is a much smaller, much more answerable decision.
+        Why this works: the freelancer in the r/Upwork thread had nothing to defend.
+        <strong>The thread judged their words because their words were all that was attached.</strong>
+        With an artifact, the conversation moves from "do I trust this person?" to "do I want this version, or do I want a different version?". A much more answerable question.
+      </div>
+
+      <div class="receipts">
+        <h3>Receipts</h3>
+        <ul>
+          <li><a href="https://www.reddit.com/r/Upwork/comments/1sqjgfx/can_i_get_job_with_this_proposal/" target="_blank">Original r/Upwork thread</a> — bid + comments. <em>OP's username withheld here on purpose.</em></li>
+          <li>Brief is verbatim from the post.</li>
+          <li>The dashboard data is fake; the structure is real.</li>
+          <li>30 minutes was the actual build time. Bidsmith aims at 10–20 minutes once the agent runs autonomously; this was hand-run.</li>
+        </ul>
       </div>
 
       <div class="cta">
