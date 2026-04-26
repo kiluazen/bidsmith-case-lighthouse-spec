@@ -272,19 +272,52 @@ your brand, role-based views. Land at the lower end of your range.
       </div>
 
       <div class="cta">
-        <h2>Want one for your real Upwork bid?</h2>
+        <h2>Hand-running bidsmith on 5 real bids per week. Want one of the slots?</h2>
         <p>
-          I'm hand-running bidsmith on real bids before automating. Send me the next Upwork
-          job you'd actually apply to — I'll personally produce the artifact + the proposal
-          copy. Free. Worst case you keep what I send. Reach me at
-          <a style="color: white; text-decoration: underline;" href="mailto:kushal@kushalsm.com">kushal@kushalsm.com</a>.
+          Until the agent is automated, I'm personally producing artifact + proposal copy
+          for whoever sends me a real Upwork brief. Free. No equity, no clawback. Worst
+          case you keep what I send.
         </p>
-        <a class="btn" href="mailto:kushal@kushalsm.com?subject=bidsmith%20—%20want%20one%20for%20my%20bid">Email me your next brief</a>
+        <form id="briefForm" style="display:grid; gap:10px; max-width:520px; margin-top:18px;">
+          <input id="bsEmail" name="email" type="email" required placeholder="your email"
+            style="min-height:44px; padding:0 14px; border-radius:8px; border:1px solid #3a3a45; background:#1d1d24; color:var(--paper); font:inherit; font-size:15px;" />
+          <input id="bsBrief" name="brief" type="text" required placeholder="paste the Upwork job URL — or a 1-line summary if it's pre-bid"
+            style="min-height:44px; padding:0 14px; border-radius:8px; border:1px solid #3a3a45; background:#1d1d24; color:var(--paper); font:inherit; font-size:14px;" />
+          <button id="bsBtn" type="submit" class="btn" style="margin-top:6px; align-self:flex-start; cursor:pointer; border:0;">Take a slot</button>
+          <div id="bsNote" style="font-size:13px; color:#c9c1ad; margin-top:6px;">I reply within ~24h with the artifact + proposal copy.</div>
+        </form>
       </div>
 
       <footer>
         bidsmith — send the work, not the promise. <a href="https://bidsmith.kushalsm.com">bidsmith.kushalsm.com</a> · <a href="https://kushalsm.com">kushalsm.com</a>
       </footer>
     </div>
+    <script>
+      (function(){
+        var ENDPOINT = "https://script.google.com/macros/s/AKfycbx09f-4aNddxzmVVUStNJwjzVip5u3PqVYN7GSgO83FDz5DqYLEFqy4ysARdZ6oeDo8rA/exec";
+        var f = document.getElementById('briefForm'); if(!f) return;
+        f.addEventListener('submit', function(e){
+          e.preventDefault();
+          var email = document.getElementById('bsEmail').value.trim();
+          var brief = document.getElementById('bsBrief').value.trim();
+          var btn = document.getElementById('bsBtn');
+          var note = document.getElementById('bsNote');
+          if(!email || !brief) return;
+          btn.disabled = true; var orig = btn.textContent; btn.textContent = "Sending…";
+          fetch(ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ product: "bidsmith-case-002", email: email, brief: brief, source: location.href })
+          }).then(function(){
+            f.reset();
+            btn.textContent = "Got it ✓";
+            note.textContent = "Slot taken. I'll email the artifact within 24h.";
+          }).catch(function(){
+            btn.disabled = false; btn.textContent = orig;
+            note.textContent = "Send failed. Email kushal@kushalsm.com directly.";
+          });
+        });
+      })();
+    </script>
   </body>
 </html>
