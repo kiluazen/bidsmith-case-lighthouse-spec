@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hyperspell vs Mem0, Letta, Zep &amp; LangChain Memory — picking an agent memory layer in 2026</title>
+    <meta name="description" content="An honest, side-by-side comparison of agent memory platforms. Built as a v0 artifact for the Hyperspell team." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,wght@0,400;1,400;0,600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0d12;
+        --bg-2: #12141b;
+        --bg-3: #181b23;
+        --line: #232733;
+        --line-2: #2c3140;
+        --text: #ecedf2;
+        --text-soft: #b9bdca;
+        --muted: #7e8392;
+        --muted-2: #535867;
+        --accent: #c0a5ff;        /* hyperspell purple */
+        --accent-2: #ffd68a;
+        --accent-soft: rgba(192, 165, 255, 0.10);
+        --line-accent: rgba(192, 165, 255, 0.30);
+        --bad: #f47272;
+        --good: #7ddc9b;
+        --partial: #ffd68a;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; font-size: 15px; -webkit-font-smoothing: antialiased; }
+      a { color: inherit; text-decoration: none; }
+      .wrap { width: min(1100px, calc(100% - 40px)); margin: 0 auto; }
+      code, pre, kbd { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+      .nav { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; border-bottom: 1px solid var(--line); }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+      .brand-mark { width: 26px; height: 26px; background: var(--accent); color: var(--bg); border-radius: 6px; display: grid; place-items: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px; }
+      .nav-right { display: flex; gap: 12px; align-items: center; }
+      .pill { padding: 7px 12px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+      .hero { padding: 80px 0 50px; max-width: 920px; margin: 0 auto; text-align: center; }
+      .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: var(--accent-soft); border: 1px solid var(--line-accent); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: var(--accent); margin-bottom: 26px; }
+      h1 { font-family: 'Newsreader', Georgia, serif; font-size: clamp(38px, 5.6vw, 60px); font-weight: 600; line-height: 1.04; letter-spacing: -0.022em; margin: 0 0 22px; }
+      h1 em { font-style: italic; color: var(--accent); }
+      .lede { font-size: 19px; color: var(--text-soft); max-width: 65ch; margin: 0 auto; }
+
+      .tldr-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 60px 0 70px; }
+      .tldr { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 16px 16px 18px; }
+      .tldr.hs { border-color: var(--line-accent); background: linear-gradient(180deg, rgba(192,165,255,0.06), var(--bg-2)); }
+      .tldr h3 { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
+      .tldr h3 .v { color: var(--muted); font-weight: 500; font-family: 'JetBrains Mono', monospace; font-size: 11px; margin-left: 6px; }
+      .tldr .who { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+      .tldr p { font-size: 13px; color: var(--text-soft); }
+
+      .section { padding: 50px 0; border-top: 1px solid var(--line); }
+      .section .kicker { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; margin-bottom: 12px; }
+      .section h2 { font-family: 'Newsreader', serif; font-size: clamp(28px, 3.8vw, 40px); font-weight: 600; line-height: 1.1; letter-spacing: -0.018em; margin-bottom: 12px; }
+      .section h2 em { color: var(--accent); font-style: italic; }
+      .section .sub { color: var(--text-soft); max-width: 65ch; }
+
+      table.matrix { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 30px; font-size: 13.5px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+      table.matrix th, table.matrix td { text-align: left; padding: 13px 14px; vertical-align: top; border-bottom: 1px solid var(--line); }
+      table.matrix tr:last-child th, table.matrix tr:last-child td { border-bottom: none; }
+      table.matrix thead th { background: var(--bg-2); font-weight: 600; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--line-2); }
+      table.matrix thead th.hs { color: var(--accent); }
+      table.matrix tbody th { background: var(--bg-2); font-weight: 500; color: var(--text-soft); font-size: 13px; width: 180px; }
+      table.matrix td { color: var(--text-soft); }
+      table.matrix td.hs { background: rgba(192,165,255,0.04); color: var(--text); }
+      table.matrix td .tag { display: inline-block; padding: 1px 8px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; background: var(--bg-3); border: 1px solid var(--line-2); color: var(--muted); margin-right: 4px; }
+      table.matrix td .tag.good { color: var(--good); border-color: rgba(125,220,155,0.3); background: rgba(125,220,155,0.06); }
+      table.matrix td .tag.bad { color: var(--bad); border-color: rgba(244,114,114,0.3); background: rgba(244,114,114,0.06); }
+      table.matrix td .tag.mid { color: var(--partial); border-color: rgba(255,214,138,0.3); background: rgba(255,214,138,0.06); }
+
+      .rec-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 30px; }
+      .rec { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 22px 22px 24px; }
+      .rec.hs { border-color: var(--line-accent); background: linear-gradient(180deg, rgba(192,165,255,0.05), var(--bg-2)); }
+      .rec h4 { font-size: 16px; margin-bottom: 4px; }
+      .rec h4 .label { color: var(--accent); }
+      .rec .who { color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; }
+      .rec p { font-size: 14px; color: var(--text-soft); margin-bottom: 10px; }
+      .rec ul { list-style: none; }
+      .rec li { font-size: 13.5px; color: var(--text-soft); padding-left: 18px; position: relative; margin-bottom: 6px; }
+      .rec li:before { content: "›"; color: var(--accent); position: absolute; left: 0; top: -1px; }
+
+      .footer { padding: 60px 0 80px; border-top: 1px solid var(--line); margin-top: 50px; }
+      .footer-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; padding: 36px 36px 40px; max-width: 720px; margin: 0 auto; }
+      .footer-card .eyebrow { background: rgba(255,214,138,0.08); border-color: rgba(255,214,138,0.30); color: var(--accent-2); }
+      .footer-card h3 { font-family: 'Newsreader', serif; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 12px; }
+      .footer-card p { color: var(--text-soft); font-size: 14.5px; margin-bottom: 12px; }
+      .footer-card a.cta { display: inline-block; margin-top: 6px; background: var(--accent); color: var(--bg); font-weight: 600; padding: 10px 18px; border-radius: 8px; font-size: 14px; border: 0; cursor: pointer; font-family: inherit; }
+      .meta-foot { text-align: center; color: var(--muted); font-size: 12px; margin-top: 24px; }
+      .meta-foot a { color: var(--accent); }
+
+      @media (max-width: 900px) {
+        .tldr-grid { grid-template-columns: repeat(2, 1fr); }
+        .rec-grid { grid-template-columns: 1fr; }
+        table.matrix thead { display: none; }
+        table.matrix tbody th { width: auto; display: block; }
+        table.matrix td { display: block; }
+        table.matrix td:before { content: attr(data-col); display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="nav">
+        <a class="brand" href="https://hyperspell.com">
+          <span class="brand-mark">H</span>
+          <span>Hyperspell comparison</span>
+        </a>
+        <div class="nav-right">
+          <a class="pill" href="https://hyperspell.com">hyperspell.com →</a>
+        </div>
+      </div>
+
+      <section class="hero">
+        <span class="eyebrow">A v0 artifact for Manu &amp; the Hyperspell team · built in 60 minutes</span>
+        <h1>Hyperspell vs <em>Mem0, Letta, Zep &amp; LangChain Memory</em> — picking an agent memory layer in 2026</h1>
+        <p class="lede">
+          The agent-memory category is now five live products with overlapping pitches. The page that should answer
+          <em>"why Hyperspell over the open-source standard?"</em> doesn't exist yet on hyperspell.com.
+          This is a v0 of that page — honest, side-by-side, no overclaiming. Use it, fork it, keep what's true.
+        </p>
+      </section>
+
+      <section>
+        <div class="tldr-grid">
+          <div class="tldr hs">
+            <h3>Hyperspell <span class="v">YC F25</span></h3>
+            <div class="who">For: integration-first agents</div>
+            <p>Connect tools, get a context graph back as a filesystem any agent can read. Integrations as the unit of truth, not chat history.</p>
+          </div>
+          <div class="tldr">
+            <h3>Mem0</h3>
+            <div class="who">For: chat memory</div>
+            <p>Open-source SDK + hosted SaaS. Memory derived from chat history, compressed and re-injected. Most popular by GitHub stars.</p>
+          </div>
+          <div class="tldr">
+            <h3>Letta <span class="v">ex-MemGPT</span></h3>
+            <div class="who">For: research-grade agents</div>
+            <p>OS for stateful agents. Berkeley research lineage. Memory + agent runtime fused — pick Letta, you adopt their agent abstraction.</p>
+          </div>
+          <div class="tldr">
+            <h3>Zep</h3>
+            <div class="who">For: knowledge graphs</div>
+            <p>Temporal knowledge graph + memory. Strong opinions about entity extraction and time-aware retrieval. Cloud + self-hosted.</p>
+          </div>
+          <div class="tldr">
+            <h3>LangChain Memory</h3>
+            <div class="who">For: incumbent users</div>
+            <p>Built-in to the LangChain framework. Lowest friction <em>if you're already on LangChain</em>; otherwise pulls in the whole framework.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="kicker">Section 1</div>
+        <h2>Where they actually <em>differ</em></h2>
+        <p class="sub">Every memory product's homepage says "persistent context for AI agents". The honest differences are downstream of one decision: <em>what is your agent's source of truth?</em> Chat? Connected tools? A typed knowledge graph? An agent-runtime state machine? Pick your answer and the right product narrows itself.</p>
+
+        <table class="matrix">
+          <thead>
+            <tr>
+              <th>Dimension</th>
+              <th class="hs">Hyperspell</th>
+              <th>Mem0</th>
+              <th>Letta</th>
+              <th>Zep</th>
+              <th>LangChain Memory</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Source of truth</th>
+              <td class="hs" data-col="Hyperspell"><span class="tag good">connected tools</span> Slack, Notion, GDrive — indexed continuously</td>
+              <td data-col="Mem0">Chat / message history</td>
+              <td data-col="Letta">Agent runtime state (core + recall + archival memory)</td>
+              <td data-col="Zep">Chat history compiled into a temporal knowledge graph</td>
+              <td data-col="LangChain Memory">Whatever your chain reads — usually chat history</td>
+            </tr>
+            <tr>
+              <th>Abstraction</th>
+              <td class="hs" data-col="Hyperspell"><span class="tag">filesystem</span> agents <code>read()</code> from a virtual FS</td>
+              <td data-col="Mem0"><span class="tag">SDK</span> <code>m.add()</code> / <code>m.search()</code></td>
+              <td data-col="Letta"><span class="tag">stateful agent</span> — you instantiate a Letta agent, not a memory store</td>
+              <td data-col="Zep"><span class="tag">SDK + graph</span> retrieve nodes/edges or summaries</td>
+              <td data-col="LangChain Memory"><span class="tag">Memory class</span> attached to a Chain or Agent</td>
+            </tr>
+            <tr>
+              <th>Open source?</th>
+              <td class="hs" data-col="Hyperspell"><span class="tag bad">no</span> SaaS only</td>
+              <td data-col="Mem0"><span class="tag good">yes</span> Apache-2.0 + hosted</td>
+              <td data-col="Letta"><span class="tag good">yes</span> Apache-2.0 + hosted</td>
+              <td data-col="Zep"><span class="tag mid">community edition</span> + cloud</td>
+              <td data-col="LangChain Memory"><span class="tag good">yes</span> MIT, part of LangChain</td>
+            </tr>
+            <tr>
+              <th>Auth / connectors</th>
+              <td class="hs" data-col="Hyperspell"><span class="tag good">built-in</span> "one line" account linking — the moat</td>
+              <td data-col="Mem0">DIY (you bring the data)</td>
+              <td data-col="Letta">DIY</td>
+              <td data-col="Zep">DIY</td>
+              <td data-col="LangChain Memory">DIY (LangChain has separate connectors)</td>
+            </tr>
+            <tr>
+              <th>What it stores</th>
+              <td class="hs" data-col="Hyperspell">Summaries / memories. <em>Not raw data.</em></td>
+              <td data-col="Mem0">Compressed memories from chat</td>
+              <td data-col="Letta">Structured agent state (3 memory tiers)</td>
+              <td data-col="Zep">Facts, entities, time-anchored relationships</td>
+              <td data-col="LangChain Memory">Whatever your Memory subclass writes</td>
+            </tr>
+            <tr>
+              <th>Compliance</th>
+              <td class="hs" data-col="Hyperspell"><span class="tag good">SOC 2 + GDPR</span></td>
+              <td data-col="Mem0">SOC 2 (cloud), HIPAA enterprise</td>
+              <td data-col="Letta">Self-hosted (you handle it)</td>
+              <td data-col="Zep">SOC 2 (cloud)</td>
+              <td data-col="LangChain Memory">Your stack handles it</td>
+            </tr>
+            <tr>
+              <th>"Hello, memory" code</th>
+              <td class="hs" data-col="Hyperspell"><code>hs.connect("notion") → fs.read()</code></td>
+              <td data-col="Mem0"><code>m.add(messages, user_id="alice")</code></td>
+              <td data-col="Letta"><code>letta.create_agent(memory=ChatMemory())</code></td>
+              <td data-col="Zep"><code>zep.memory.add(session_id, msgs)</code></td>
+              <td data-col="LangChain Memory"><code>ConversationBufferMemory()</code></td>
+            </tr>
+            <tr>
+              <th>Best fit team size</th>
+              <td class="hs" data-col="Hyperspell">Startup &amp; mid-market shipping integrated agents</td>
+              <td data-col="Mem0">Indie devs to enterprise</td>
+              <td data-col="Letta">Researchers + production teams who want full control</td>
+              <td data-col="Zep">Teams with knowledge-graph-shaped problems</td>
+              <td data-col="LangChain Memory">Teams already standardized on LangChain</td>
+            </tr>
+            <tr>
+              <th>The unique bet</th>
+              <td class="hs" data-col="Hyperspell">"Agents shouldn't recreate connector pipelines" — make integrations the memory layer</td>
+              <td data-col="Mem0">"Chat compression is the memory primitive"</td>
+              <td data-col="Letta">"Agents need a typed runtime, not a vector store"</td>
+              <td data-col="Zep">"Time-aware knowledge graphs beat embeddings"</td>
+              <td data-col="LangChain Memory">"Memory is a chain step, not a product"</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <div class="kicker">Section 2</div>
+        <h2>Use the <em>right</em> one for the job</h2>
+        <p class="sub">Honesty serves Hyperspell better than overclaiming. The cohorts below are the ones for which each project is genuinely the best fit. A page that says "use Mem0 if you're indexing chat" is the page candidates and customers will trust enough to keep reading.</p>
+
+        <div class="rec-grid">
+          <div class="rec hs">
+            <h4>Use <span class="label">Hyperspell</span></h4>
+            <div class="who">If your agent's value comes from connected tools</div>
+            <p>Your product asks the user to link their Slack / Notion / GDrive / GitHub / whatever. That data flow IS the agent. You don't want to spend Q1 building OAuth for ten SaaS APIs and an indexing pipeline behind it. Hyperspell collapses that into one connector + one filesystem read.</p>
+            <ul>
+              <li>Multi-source context is the differentiator, not chat history.</li>
+              <li>You'd rather pay per-user-month than build a connector team.</li>
+              <li>The <em>filesystem</em> abstraction maps cleanly to how your agent already reads files / docs.</li>
+            </ul>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">Mem0</span></h4>
+            <div class="who">If memory is fundamentally chat-derived</div>
+            <p>You're building a chatbot, support agent, or any product where the user's history with the agent <em>is</em> the memory you need to preserve. Mem0's compression-and-recall loop is purpose-built for this. Open source means you can self-host it the moment cloud bills get scary.</p>
+            <ul>
+              <li>You don't need third-party data sources baked in.</li>
+              <li>You want optionality between SDK and SaaS.</li>
+              <li>You like the GitHub-stars community signal (currently the largest in the category).</li>
+            </ul>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">Letta</span></h4>
+            <div class="who">If you're adopting an agent runtime, not just a memory layer</div>
+            <p>You buy into the MemGPT-paper thesis: agents need an explicit OS-style runtime with tiered memory and structured state, not just a vector store. Pick Letta when you'd rather instantiate <code>Agent</code>s than glue a memory product to your own loop.</p>
+            <ul>
+              <li>Research lineage matters to your team.</li>
+              <li>You're fine giving up a chunk of your existing agent loop in exchange for tier-managed state.</li>
+            </ul>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">Zep</span></h4>
+            <div class="who">If your problem is shaped like a knowledge graph</div>
+            <p>You're modeling entities and relationships between them across time — a CRM-augmenting agent, a longitudinal-care agent, a legal-events agent. Embeddings alone keep returning fuzz; you actually need typed nodes and edges. That's Zep's bet.</p>
+            <ul>
+              <li>Temporal reasoning is core to your product (not "remember this" but "remember when").</li>
+              <li>You'd rather query <code>users.find()</code> than <code>vec.search()</code>.</li>
+            </ul>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">LangChain Memory</span></h4>
+            <div class="who">If you're already deep in LangChain and the cost of switching is high</div>
+            <p>You've built on chains and agents for a year, your team knows the abstractions, and the memory step is one piece of a larger system. Pulling in a separate memory product just to avoid <code>ConversationBufferMemory</code> is yak-shaving. Stay in-framework until you outgrow it.</p>
+            <ul>
+              <li>Switching cost &gt; capability gap.</li>
+              <li>You're prototyping, not yet in production.</li>
+            </ul>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">no memory product at all</span></h4>
+            <div class="who">If your product is single-session</div>
+            <p>If your agent is a one-shot tool that runs and exits, "memory" is just your prompt. Don't add a vendor for a problem you don't have. Revisit when retention or personalization becomes a roadmap line item.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="kicker">Section 3</div>
+        <h2>Honest answers to the <em>questions a candidate / buyer asks</em></h2>
+        <p class="sub">Manu — these are the four questions a candidate evaluating Hyperspell as their next job, or a buyer evaluating Hyperspell against Mem0, will ask. The page that pre-answers them earns time.</p>
+
+        <div class="rec-grid">
+          <div class="rec">
+            <h4>"Why pay when Mem0 is open source?"</h4>
+            <p>Because you're paying for connectors, not for memory. The integration layer is the moat — getting Slack/Notion/GDrive auth flows production-ready takes a quarter for a small team. Mem0 doesn't ship that. You'd build it yourself, then add Mem0 on top of your indexing pipeline. Hyperspell collapses both into one bill.</p>
+          </div>
+          <div class="rec">
+            <h4>"How is the filesystem abstraction not just S3 with steps?"</h4>
+            <p>Because reads are context-engineered: a <code>read()</code> against the virtual FS surfaces a structured/LLM-ready slice, not the raw blob. The filesystem isn't storage — it's a retrieval surface that happens to have a familiar mental model so agents written today can adopt it without rewriting their data layer.</p>
+          </div>
+          <div class="rec">
+            <h4>"What happens to my customers' raw data?"</h4>
+            <p>Per Hyperspell's site: only summaries and memories are stored, not raw documents. SOC 2 + GDPR. No model training on customer data. This belongs above the fold, not in a security tab.</p>
+          </div>
+          <div class="rec">
+            <h4>"Why YC F25 — what changed in the last six months?"</h4>
+            <p>The agent-memory category has gone from "nice-to-have RAG add-on" to its own line item on infra budgets in &lt; 12 months. Five products are now actively pitching the same buyer. Hyperspell's bet on connectors-as-memory is a reasonable answer to "the next layer of differentiation has to be data flow, not retrieval algorithm". (You'd say it more crisply than I just did.)</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="footer">
+        <div class="footer-card">
+          <span class="eyebrow">From the agent who built this page</span>
+          <h3>This is what bidsmith does — sends you the work, not the pitch.</h3>
+          <p>I'm Kushal. I'm building <a href="https://bidsmith.kushalsm.com" style="color: var(--accent);">bidsmith</a>: an agent that reads a brief and ships a real artifact (page, dashboard, comparison — whatever moves the work forward), so the cover letter stops being copy-paste cope.</p>
+          <p>This is artifact <strong>#005</strong>. The earlier ones are at <a href="../" style="color: var(--accent);">the showcase</a>. None of them were prompted by the recipient — each one is bidsmith's bet that the artifact is more persuasive than any pitch about the artifact would be.</p>
+          <p>Manu — saw your HN hiring post for forward-deployed / AI / platform engineers. The page above is what an applicant who'd been thinking about Hyperspell-vs-the-category for an afternoon could ship as their first day. If parts are wrong, tell me and I'll fix them. If you'd rather drop it on hyperspell.com as <code>/vs/</code>, also fine — yours.</p>
+          <p style="margin-top:18px; color:var(--text);"><strong>Building something and want a v0 artifact like this for your own product?</strong> Send the URL — I&rsquo;ll have it back to you in &lt; 48h.</p>
+          <form id="briefForm" style="display:grid; gap:10px; max-width:520px; margin-top:14px;">
+            <input id="bsEmail" name="email" type="email" required placeholder="your email" style="min-height:44px; padding:0 14px; border-radius:8px; border:1px solid var(--line-2); background:var(--bg-3); color:var(--text); font:inherit; font-size:15px;" />
+            <input id="bsBrief" name="brief" type="text" required placeholder="your product URL — or a 1-line summary" style="min-height:44px; padding:0 14px; border-radius:8px; border:1px solid var(--line-2); background:var(--bg-3); color:var(--text); font:inherit; font-size:14px;" />
+            <button id="bsBtn" type="submit" class="cta" style="margin-top:6px; align-self:flex-start; cursor:pointer; border:0;">Send me the brief →</button>
+            <div id="bsNote" style="font-size:13px; color:var(--text-soft); margin-top:6px;">I reply within ~48h with the artifact.</div>
+          </form>
+        </div>
+        <div class="meta-foot">
+          v0 — built in ~60 min · 2026-04-26 · <a href="../">bidsmith case studies</a> · <a href="https://hyperspell.com">hyperspell.com</a>
+        </div>
+      </section>
+    </div>
+    <script>
+      (function(){
+        var ENDPOINT = "https://script.google.com/macros/s/AKfycbx09f-4aNddxzmVVUStNJwjzVip5u3PqVYN7GSgO83FDz5DqYLEFqy4ysARdZ6oeDo8rA/exec";
+        var f = document.getElementById('briefForm'); if(!f) return;
+        f.addEventListener('submit', function(e){
+          e.preventDefault();
+          var email = document.getElementById('bsEmail').value.trim();
+          var brief = document.getElementById('bsBrief').value.trim();
+          var btn = document.getElementById('bsBtn');
+          var note = document.getElementById('bsNote');
+          if(!email || !brief) return;
+          btn.disabled = true; var orig = btn.textContent; btn.textContent = "Sending…";
+          fetch(ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ product: "bidsmith-case-005", email: email, brief: brief, source: location.href })
+          }).then(function(){
+            f.reset();
+            btn.textContent = "Got it ✓";
+            note.textContent = "Got it. I'll email the artifact within 48h.";
+          }).catch(function(){
+            btn.disabled = false; btn.textContent = orig;
+            note.textContent = "Send failed. Email kushal@kushalsm.com directly.";
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

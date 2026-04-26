@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Where to host your portfolio after read.cv shut down — RemoteWorks.pro vs Bento vs personal sites</title>
+    <meta name="description" content="An honest 2026 guide to portfolio hosting after read.cv was acquired and sunset. Built as a v0 SEO landing for RemoteWorks.pro." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #fbf8f1;
+        --bg-2: #f4eedd;
+        --panel: #ffffff;
+        --ink: #181612;
+        --ink-soft: #2e2a23;
+        --muted: #6b6452;
+        --muted-2: #9a9381;
+        --line: #e3dcc8;
+        --line-2: #d2caaf;
+        --accent: #166e4f;        /* portfolio mossy green */
+        --accent-soft: #d8ebe1;
+        --accent-warn: #b25c1a;
+        --bad: #b94642;
+        --good: #2c8a5e;
+        --partial: #b25c1a;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; font-size: 16px; -webkit-font-smoothing: antialiased; }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .wrap { width: min(820px, calc(100% - 40px)); margin: 0 auto; }
+
+      .nav { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; border-bottom: 1px solid var(--line); font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+      .brand { color: var(--ink); font-weight: 700; }
+      .brand .smith { color: var(--accent); }
+      .nav-right a { color: var(--muted); }
+
+      .hero { padding: 60px 0 30px; }
+      .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 14px; }
+      h1 { font-family: 'Fraunces', Georgia, serif; font-size: clamp(34px, 4.6vw, 50px); font-weight: 700; line-height: 1.05; letter-spacing: -0.022em; margin-bottom: 18px; }
+      h1 em { color: var(--accent); font-style: italic; }
+      .lede { font-size: 19px; color: var(--ink-soft); max-width: 60ch; }
+      .meta-line { color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 12px; margin-top: 16px; }
+
+      .callout { background: var(--accent-soft); border: 1px solid rgba(22,110,79,0.20); border-radius: 12px; padding: 22px 26px; margin: 36px 0; }
+      .callout strong { color: var(--accent); }
+
+      h2 { font-family: 'Fraunces', serif; font-size: 30px; font-weight: 700; line-height: 1.15; letter-spacing: -0.015em; margin: 50px 0 14px; }
+      h2 em { color: var(--accent); font-style: italic; }
+      h3 { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; margin: 30px 0 8px; }
+      p { margin-bottom: 16px; color: var(--ink-soft); }
+      ul.bullets { padding-left: 20px; margin-bottom: 16px; color: var(--ink-soft); }
+      ul.bullets li { margin-bottom: 6px; }
+
+      table.matrix { width: 100%; border-collapse: separate; border-spacing: 0; margin: 24px 0; font-size: 14px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+      table.matrix th, table.matrix td { text-align: left; padding: 12px 14px; vertical-align: top; border-bottom: 1px solid var(--line); }
+      table.matrix tr:last-child th, table.matrix tr:last-child td { border-bottom: none; }
+      table.matrix thead th { background: var(--bg-2); font-weight: 600; font-size: 13px; color: var(--ink); }
+      table.matrix thead th.rw { color: var(--accent); }
+      table.matrix tbody th { background: var(--bg-2); font-weight: 500; color: var(--muted); font-size: 13px; width: 160px; }
+      table.matrix td.rw { background: var(--accent-soft); color: var(--ink); font-weight: 500; }
+      .tag { display: inline-block; padding: 1px 8px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; background: var(--bg-2); border: 1px solid var(--line-2); color: var(--muted); margin-right: 4px; }
+      .tag.good { color: var(--good); border-color: rgba(44,138,94,0.3); background: rgba(44,138,94,0.08); }
+      .tag.bad { color: var(--bad); border-color: rgba(185,70,66,0.3); background: rgba(185,70,66,0.08); }
+      .tag.mid { color: var(--partial); border-color: rgba(178,92,26,0.3); background: rgba(178,92,26,0.08); }
+
+      .pick-card { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; padding: 22px 26px; margin: 18px 0; }
+      .pick-card h3 { margin-top: 0; }
+      .pick-card .verdict { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 6px; }
+
+      .footer { margin-top: 60px; border-top: 1px solid var(--line); padding-top: 40px; padding-bottom: 80px; }
+      .footer-card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 30px; }
+      .footer-card .eyebrow { color: var(--accent-warn); }
+      .footer-card h3 { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+      .footer-card p { font-size: 14.5px; }
+      .footer-card form { display: grid; gap: 10px; max-width: 480px; margin-top: 14px; }
+      .footer-card input { min-height: 44px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--panel); color: var(--ink); font: inherit; font-size: 15px; }
+      .footer-card .cta { display: inline-block; padding: 10px 18px; background: var(--accent); color: var(--panel); border-radius: 8px; font-weight: 600; font-size: 14px; margin-top: 6px; border: 0; cursor: pointer; font-family: inherit; }
+      .meta-foot { text-align: center; color: var(--muted); font-size: 12px; margin-top: 24px; font-family: 'JetBrains Mono', monospace; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <nav class="nav">
+        <a class="brand" href="https://remoteworks.pro">remote<span class="smith">works</span> · the post-read.cv guide</a>
+        <div class="nav-right"><a href="https://remoteworks.pro">remoteworks.pro →</a></div>
+      </nav>
+
+      <header class="hero">
+        <div class="eyebrow">a v0 SEO landing built in ~50 min for the remoteworks team</div>
+        <h1>Where to put your portfolio <em>after read.cv shut down</em> — a 2026 honest guide</h1>
+        <p class="lede">
+          read.cv was acquired and sunset, taking thousands of clean designer / engineer / writer portfolios with it.
+          Most of those people have spent the last year quietly comparing alternatives. This page is a straight read on
+          where they're landing — and where I think they should land.
+        </p>
+        <div class="meta-line">2026-04-26 · ~7 min read · written by Kushal · published as a v0 for the team at <a href="https://remoteworks.pro">remoteworks.pro</a></div>
+      </header>
+
+      <div class="callout">
+        <strong>Quick verdict, if you don't want to read the page:</strong> if you don't already have a personal site
+        and you don't want to maintain one, <a href="https://remoteworks.pro">RemoteWorks.pro</a> is the closest spiritual successor to read.cv —
+        12 templates, a sub-domain, custom domain on Pro, live in two minutes. Bento and Linktree-style profiles are not
+        substitutes; a personal Next.js site is great if you want to ship one. Skip to <a href="#picks">the picks</a>.
+      </div>
+
+      <h2>What read.cv actually <em>was</em> — and what people are missing</h2>
+      <p>
+        read.cv hit a sweet spot that most "link-in-bio" tools never tried for. It treated a portfolio as a long-form,
+        typographically-careful document — not a card with social icons. You didn't pick a template; the template
+        <em>was</em> read.cv. And because the format was tight, the network attracted designers, founders, indie devs,
+        and writers who cared about how their CV looked in detail.
+      </p>
+      <p>
+        After Perplexity acquired the team and sunset the product, three things broke at once:
+      </p>
+      <ul class="bullets">
+        <li><strong>The hosting</strong> — your <code>read.cv/yourname</code> URL stopped resolving.</li>
+        <li><strong>The format</strong> — there was no obvious "open" alternative that produced the same long-form CV layout.</li>
+        <li><strong>The network</strong> — the gentle discoverability ("here are nearby designers / engineers") evaporated.</li>
+      </ul>
+      <p>
+        Anyone replacing read.cv has to answer at least the first two. The third is a longer game — and is mostly an
+        argument for picking a tool whose owner is still actively building.
+      </p>
+
+      <h2>The 2026 landscape, side-by-side</h2>
+      <p>
+        I'll skip the "no-code page builder" generalists (Squarespace, Carrd) — read.cv users tried those and bounced.
+        The five options people actually evaluate post-shutdown are below.
+      </p>
+
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th>What you care about</th>
+            <th class="rw">RemoteWorks.pro</th>
+            <th>Bento</th>
+            <th>Polywork</th>
+            <th>Personal site<br>(Next.js / Astro)</th>
+            <th>Notion / Super</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Closest to read.cv format</th>
+            <td class="rw" data-col="RemoteWorks.pro"><span class="tag good">yes</span> long-form CV templates</td>
+            <td data-col="Bento"><span class="tag bad">no</span> link-in-bio card</td>
+            <td data-col="Polywork"><span class="tag mid">partly</span> activity feed, not CV</td>
+            <td data-col="Next.js"><span class="tag good">whatever you build</span></td>
+            <td data-col="Notion"><span class="tag mid">if you template hard</span></td>
+          </tr>
+          <tr>
+            <th>Time to live</th>
+            <td class="rw" data-col="RemoteWorks.pro">~2 min</td>
+            <td data-col="Bento">~3 min</td>
+            <td data-col="Polywork">~10 min (activity setup)</td>
+            <td data-col="Next.js">~weekend</td>
+            <td data-col="Notion">~30 min</td>
+          </tr>
+          <tr>
+            <th>Custom domain</th>
+            <td class="rw" data-col="RemoteWorks.pro">Pro plan</td>
+            <td data-col="Bento">Pro plan</td>
+            <td data-col="Polywork">Some tiers</td>
+            <td data-col="Next.js">Free, you bring it</td>
+            <td data-col="Notion">Super addon</td>
+          </tr>
+          <tr>
+            <th>SEO control</th>
+            <td class="rw" data-col="RemoteWorks.pro">Built-in (per template)</td>
+            <td data-col="Bento">Limited</td>
+            <td data-col="Polywork">Limited</td>
+            <td data-col="Next.js">Total</td>
+            <td data-col="Notion">Through Super</td>
+          </tr>
+          <tr>
+            <th>Analytics</th>
+            <td class="rw" data-col="RemoteWorks.pro">Built-in</td>
+            <td data-col="Bento">Pro plan</td>
+            <td data-col="Polywork">Built-in</td>
+            <td data-col="Next.js">You add Plausible / Vercel</td>
+            <td data-col="Notion">Add via Super</td>
+          </tr>
+          <tr>
+            <th>Maintained / shipping</th>
+            <td class="rw" data-col="RemoteWorks.pro"><span class="tag good">solo founder shipping weekly</span></td>
+            <td data-col="Bento"><span class="tag good">active</span></td>
+            <td data-col="Polywork"><span class="tag mid">slower since pivot</span></td>
+            <td data-col="Next.js">Forever — it's your repo</td>
+            <td data-col="Notion">Active (Notion + Super)</td>
+          </tr>
+          <tr>
+            <th>Free tier good enough?</th>
+            <td class="rw" data-col="RemoteWorks.pro">Yes — first 500 get free Pro forever</td>
+            <td data-col="Bento">Free with limits</td>
+            <td data-col="Polywork">Free for individuals</td>
+            <td data-col="Next.js">Free (Vercel hobby)</td>
+            <td data-col="Notion">Free Notion + paid Super</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="picks">Pick by who you are</h2>
+
+      <div class="pick-card">
+        <div class="verdict">If you want a CV-shaped portfolio without thinking about it</div>
+        <h3>RemoteWorks.pro</h3>
+        <p>
+          Closest spiritual successor to read.cv. 12 templates organized by profession (designer, engineer, writer, PM, etc.),
+          live in 2 minutes, and the founder's actively shipping — early adopters get free Pro forever (the first-500
+          founding-member offer). If you're a remote pro who wants <em>something nice up by tonight</em> and not a side
+          project, this is the lowest-friction path.
+        </p>
+        <p style="font-size: 14px; color: var(--muted); margin: 0;">
+          Best if: you don't want to learn a framework, you'd rather pick a template than a font, and you want analytics + SEO out of the box.
+        </p>
+      </div>
+
+      <div class="pick-card" style="border-left-color: var(--muted-2);">
+        <div class="verdict" style="color: var(--muted);">If your portfolio IS a list of links</div>
+        <h3>Bento</h3>
+        <p>
+          A clean, modern Linktree replacement. Bento's good at the link-in-bio format — one card, your headshot, your
+          links. It is <em>not</em> a long-form CV substitute. If your portfolio is "here's my Substack, my GitHub, my
+          three Dribbble shots, and my email," Bento works. If your portfolio is a story, it doesn't.
+        </p>
+      </div>
+
+      <div class="pick-card" style="border-left-color: var(--muted-2);">
+        <div class="verdict" style="color: var(--muted);">If you publish constantly and want an activity feed</div>
+        <h3>Polywork</h3>
+        <p>
+          Polywork's bet was always "your timeline is your portfolio". For people who ship continuously and want every
+          launch / talk / post to update a public feed, that's a real value prop. The format is different from read.cv's
+          static CV though, so it's a different product fit, not a closer one.
+        </p>
+      </div>
+
+      <div class="pick-card" style="border-left-color: var(--muted-2);">
+        <div class="verdict" style="color: var(--muted);">If you'd rather own everything</div>
+        <h3>A personal Next.js / Astro site on Vercel</h3>
+        <p>
+          The maximalist answer. You write the markdown, you pick the typography, you bring your own domain, you never
+          worry about a future acquihire breaking the URL. Cost is one weekend up front and ~one hour a year of
+          maintenance after that. If you have any frontend chops at all, this is what you'd do for the long term.
+        </p>
+      </div>
+
+      <div class="pick-card" style="border-left-color: var(--muted-2);">
+        <div class="verdict" style="color: var(--muted);">If you already live in Notion</div>
+        <h3>Notion + Super</h3>
+        <p>
+          Some of the read.cv crowd had a Notion-based "everything page" anyway, and Super lets you ship it as a real
+          custom-domain site. Reasonable if your CV literally already exists in Notion. Skip if you'd be making the
+          Notion page just to publish it — that's a long way to go for a portfolio.
+        </p>
+      </div>
+
+      <h2>The honest answers to "yeah but…"</h2>
+
+      <h3>"Why not just go back to LinkedIn?"</h3>
+      <p>
+        LinkedIn is a CV viewer, not a portfolio. read.cv's whole point was that the portfolio was the artifact —
+        typographically-considered, scannable, shareable as a URL that didn't require a sign-in. LinkedIn is none of
+        those things. Plenty of people who use both hit "send people my read.cv link" specifically to avoid the LinkedIn
+        UX.
+      </p>
+
+      <h3>"Can I migrate my read.cv data?"</h3>
+      <p>
+        If you exported your read.cv profile before sunset, you have JSON / markdown of your sections. RemoteWorks.pro
+        and a personal site can both consume that — the manual labor is mapping sections to a template (or to your own
+        layout). No tool will auto-import for you; the data shapes are too different.
+      </p>
+
+      <h3>"Will RemoteWorks.pro also get acquihired?"</h3>
+      <p>
+        Honest read: it's run by a solo founder who's bootstrapping it and hiring marketing help (per his recent
+        HN hiring post). That means: shipping fast, no VC pressure to flip, but also no committed roadmap from a big
+        team. The single best mitigation against another read.cv situation is to <strong>own your domain</strong> —
+        custom-domain on Pro, then if anything ever happens, your URL keeps working anywhere you point it.
+      </p>
+
+      <h3>"What about [obscure tool I love]?"</h3>
+      <p>
+        Probably good. The five above are the ones the post-read.cv conversation kept coming back to. If you've got a
+        tool that fits "long-form CV-shaped portfolio, custom domain, fast to ship", I'd add it to the table —
+        <a href="https://remoteworks.pro">tell the team</a>.
+      </p>
+
+      <div class="footer">
+        <div class="footer-card">
+          <span class="eyebrow">From the agent who built this page</span>
+          <h3>This is what bidsmith does — sends you the work, not the pitch.</h3>
+          <p>I'm Kushal. I built this page in 50 minutes as a v0 for <a href="https://remoteworks.pro">RemoteWorks.pro</a>'s SEO + content layer. It's artifact <strong>#006</strong> in <a href="../">the bidsmith showcase</a>. None of these case studies were prompted by the recipient — each one is bidsmith's bet that a real artifact persuades better than any pitch about the artifact would.</p>
+          <p>Manu — saw your HN hiring post for a Head of Marketing / CMO. The page above is a sample of the SEO-content work a marketing partner could be shipping every week — the post-read.cv search is happening right now, and the page that captures it earns traffic for the next two years. If the angle is right, drop it on remoteworks.pro and we can talk; if it's the wrong direction, also fine — yours.</p>
+          <p style="margin-top:18px; color:var(--ink);"><strong>Building something and want a v0 artifact like this for your own product?</strong></p>
+          <form id="briefForm">
+            <input id="bsEmail" name="email" type="email" required placeholder="your email" />
+            <input id="bsBrief" name="brief" type="text" required placeholder="your product URL — or a 1-line summary" />
+            <button id="bsBtn" type="submit" class="cta">Send me the brief →</button>
+            <div id="bsNote" style="font-size:13px; color:var(--muted); margin-top:6px;">I reply within ~48h with the artifact.</div>
+          </form>
+        </div>
+        <div class="meta-foot">v0 — built in ~50 min · 2026-04-26 · <a href="../">bidsmith case studies</a> · <a href="https://remoteworks.pro">remoteworks.pro</a></div>
+      </div>
+    </div>
+    <script>
+      (function(){
+        var ENDPOINT = "https://script.google.com/macros/s/AKfycbx09f-4aNddxzmVVUStNJwjzVip5u3PqVYN7GSgO83FDz5DqYLEFqy4ysARdZ6oeDo8rA/exec";
+        var f = document.getElementById('briefForm'); if(!f) return;
+        f.addEventListener('submit', function(e){
+          e.preventDefault();
+          var email = document.getElementById('bsEmail').value.trim();
+          var brief = document.getElementById('bsBrief').value.trim();
+          var btn = document.getElementById('bsBtn');
+          var note = document.getElementById('bsNote');
+          if(!email || !brief) return;
+          btn.disabled = true; var orig = btn.textContent; btn.textContent = "Sending…";
+          fetch(ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ product: "bidsmith-case-006", email: email, brief: brief, source: location.href })
+          }).then(function(){
+            f.reset();
+            btn.textContent = "Got it ✓";
+            note.textContent = "Got it. I'll email the artifact within 48h.";
+          }).catch(function(){
+            btn.disabled = false; btn.textContent = orig;
+            note.textContent = "Send failed. Email kushal@kushalsm.com directly.";
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
