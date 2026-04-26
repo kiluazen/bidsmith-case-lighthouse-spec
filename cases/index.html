@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bidsmith — case studies</title>
+    <meta name="description" content="Four artifacts shipped by bidsmith. None of them were prompted by the recipient." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --paper: #f3ecda;
+        --paper-2: #ebe2c9;
+        --ink: #14110d;
+        --ink-soft: #2c2820;
+        --muted: #6b6452;
+        --muted-2: #9a937f;
+        --line: #d4ccb6;
+        --panel: #fffcf2;
+        --accent: #b8431e;
+        --accent-soft: #f4dccc;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif; background: var(--paper); color: var(--ink); line-height: 1.55; }
+      a { color: inherit; }
+      .wrap { width: min(880px, calc(100% - 40px)); margin: 0 auto; padding: 50px 0; }
+
+      .nav { display: flex; justify-content: space-between; padding-bottom: 20px; }
+      .brand { font-weight: 700; text-decoration: none; }
+      .brand .smith { color: var(--accent); }
+      .nav .other { color: var(--muted); text-decoration: none; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+      .nav .other:hover { color: var(--ink); }
+
+      .kicker { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--accent); margin: 30px 0 14px; }
+      h1 { font-family: 'Fraunces', serif; font-size: clamp(38px, 5.4vw, 60px); font-weight: 800; line-height: 1.0; letter-spacing: -0.02em; margin: 0 0 18px; }
+      h1 em { color: var(--accent); font-style: italic; }
+      .lede { font-size: 19px; color: var(--ink-soft); max-width: 60ch; }
+
+      .cases { display: grid; gap: 18px; margin: 36px 0; }
+      .case {
+        background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+        padding: 26px 28px 28px;
+        text-decoration: none; color: var(--ink);
+        display: block;
+        transition: transform 120ms ease, border-color 120ms ease;
+      }
+      .case:hover { transform: translateY(-1px); border-color: var(--accent); }
+      .case .head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; gap: 12px; flex-wrap: wrap; }
+      .case .id { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.18em; }
+      .case .when { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted-2); }
+      .case h2 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; margin: 0 0 8px; line-height: 1.2; }
+      .case h2 em { color: var(--accent); font-style: italic; }
+      .case p { color: var(--ink-soft); font-size: 15px; margin: 0 0 12px; }
+      .case .meta-row { display: flex; gap: 16px; flex-wrap: wrap; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--muted); }
+      .case .meta-row .pair strong { color: var(--ink-soft); font-weight: 600; }
+      .case .open { display: inline-block; margin-top: 14px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent); }
+
+      .cta { background: var(--ink); color: var(--paper); border-radius: 14px; padding: 36px; margin: 40px 0 20px; }
+      .cta h2 { color: var(--paper); font-family: 'Fraunces', serif; font-size: 28px; font-weight: 800; margin: 0 0 12px; }
+      .cta p { color: #c9c1ad; max-width: 50ch; margin-bottom: 14px; }
+      .cta .btn { display: inline-block; padding: 12px 22px; background: var(--accent); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 6px; border: 0; cursor: pointer; font-family: inherit; font-size: 15px; }
+      .cta input { min-height: 44px; padding: 0 14px; border-radius: 8px; border: 1px solid #3a3a45; background: #1d1d24; color: var(--paper); font: inherit; font-size: 15px; }
+
+      footer { color: var(--muted); font-size: 13px; padding-top: 30px; border-top: 1px solid var(--line); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <nav class="nav">
+        <a class="brand" href="https://bidsmith.kushalsm.com">bid<span class="smith">smith</span> · case studies</a>
+        <a class="other" href="https://bidsmith.kushalsm.com">bidsmith.kushalsm.com →</a>
+      </nav>
+
+      <div class="kicker">all artifacts · 2026-04-26</div>
+      <h1>Four artifacts. <em>Zero of them</em> were asked for.</h1>
+      <p class="lede">
+        Bidsmith's bet is that a real artifact persuades better than any pitch about the artifact would.
+        Each case below was built without the recipient asking — the brief was inferred from the public surface
+        (an Upwork post, a Show HN, an HN comment thread), the artifact was shipped, and the page itself was the email.
+      </p>
+
+      <div class="cases">
+
+        <a class="case" href="../">
+          <div class="head">
+            <span class="id">case #001</span>
+            <span class="when">2026-04-26</span>
+          </div>
+          <h2>An <em>Upwork-style brief</em>, taken from "send me a quote" to a deployed landing in 25 min.</h2>
+          <p>Fabricated-but-typical SaaS landing brief (Lighthouse Spec). Built to be the file attached to the bid + a hosted preview. Shows what bidsmith's gift-first pitch looks like for the genre: opinionated indie SaaS, fixed budget, 5-day turnaround.</p>
+          <div class="meta-row">
+            <span class="pair"><strong>Brief:</strong> SaaS landing</span>
+            <span class="pair"><strong>Artifact:</strong> Deployed page</span>
+            <span class="pair"><strong>Time:</strong> 25 min</span>
+            <span class="pair"><strong>Source:</strong> fabricated</span>
+          </div>
+          <span class="open">Open case #001 ↗</span>
+        </a>
+
+        <a class="case" href="../headcount/">
+          <div class="head">
+            <span class="id">case #002</span>
+            <span class="when">2026-04-26</span>
+          </div>
+          <h2>A real <em>publicly-trashed Upwork bid</em> — and the dashboard the bidsmith reply ships instead.</h2>
+          <p>Lifted a real brief from an r/Upwork "feedback on my proposal" thread where the proposal was being torn apart as AI slop. Built a working executive headcount dashboard from the brief and put the bidsmith reply next to the original AI-slop one for comparison. The product narrative is exactly the failure mode the case study refutes.</p>
+          <div class="meta-row">
+            <span class="pair"><strong>Brief:</strong> Power BI / dashboard</span>
+            <span class="pair"><strong>Artifact:</strong> Working dashboard</span>
+            <span class="pair"><strong>Time:</strong> 30 min</span>
+            <span class="pair"><strong>Source:</strong> real r/Upwork thread</span>
+          </div>
+          <span class="open">Open case #002 ↗</span>
+        </a>
+
+        <a class="case" href="../limen/">
+          <div class="head">
+            <span class="id">case #003</span>
+            <span class="when">2026-04-26</span>
+          </div>
+          <h2>A real <em>Show HN founder</em> — and the marketing landing his Go auth library was missing.</h2>
+          <p>Brian Iyoha shipped Limen v0.1.0 (Go auth library) on Show HN. His launch site was a docs/blog page; the actual product needed a marketing homepage. Bidsmith built it: real <code>main.go</code> code example, the better-auth comparison head-on, plugin-system positioning. Sent direct.</p>
+          <div class="meta-row">
+            <span class="pair"><strong>Brief:</strong> inferred from Show HN</span>
+            <span class="pair"><strong>Artifact:</strong> Marketing landing</span>
+            <span class="pair"><strong>Time:</strong> 45 min</span>
+            <span class="pair"><strong>Source:</strong> Show HN 47901193</span>
+          </div>
+          <span class="open">Open case #003 ↗</span>
+        </a>
+
+        <a class="case" href="../lightwhale-vs/">
+          <div class="head">
+            <span class="id">case #004</span>
+            <span class="when">2026-04-26</span>
+          </div>
+          <h2>A real <em>Show HN positioning gap</em> — and the comparison page that fills it.</h2>
+          <p>Show HN commenters asked Stephan four times "why Lightwhale over Fedora CoreOS / Talos / IncusOS?" — and his current site doesn't have the answer. Bidsmith built the answer: a side-by-side feature matrix and honest "use this if" recommendations, including when NOT to use Lightwhale. Sent direct.</p>
+          <div class="meta-row">
+            <span class="pair"><strong>Brief:</strong> inferred from HN comments</span>
+            <span class="pair"><strong>Artifact:</strong> Comparison page</span>
+            <span class="pair"><strong>Time:</strong> 60 min</span>
+            <span class="pair"><strong>Source:</strong> Show HN 47896163</span>
+          </div>
+          <span class="open">Open case #004 ↗</span>
+        </a>
+
+      </div>
+
+      <div class="cta">
+        <h2>Want one of these for your product?</h2>
+        <p>I'm hand-running bidsmith on real briefs. Send the brief — Upwork URL, Show HN URL, RFP, or a 1-line summary — and I'll have an artifact + the proposal copy back to you in &lt; 48h. Free. Worst case you keep what I send.</p>
+        <form id="briefForm" style="display:grid; gap:10px; max-width:520px; margin-top:14px;">
+          <input id="bsEmail" name="email" type="email" required placeholder="your email" />
+          <input id="bsBrief" name="brief" type="text" required placeholder="Upwork URL, Show HN URL, or 1-line brief" />
+          <button id="bsBtn" type="submit" class="btn">Send me the brief →</button>
+          <div id="bsNote" style="font-size:13px; color:#c9c1ad; margin-top:6px;">I reply within ~48h with the artifact + proposal copy.</div>
+        </form>
+      </div>
+
+      <footer>
+        bidsmith — send the work, not the promise. <a href="https://bidsmith.kushalsm.com">bidsmith.kushalsm.com</a> · <a href="https://kushalsm.com">kushalsm.com</a>
+      </footer>
+    </div>
+    <script>
+      (function(){
+        var ENDPOINT = "https://script.google.com/macros/s/AKfycbx09f-4aNddxzmVVUStNJwjzVip5u3PqVYN7GSgO83FDz5DqYLEFqy4ysARdZ6oeDo8rA/exec";
+        var f = document.getElementById('briefForm'); if(!f) return;
+        f.addEventListener('submit', function(e){
+          e.preventDefault();
+          var email = document.getElementById('bsEmail').value.trim();
+          var brief = document.getElementById('bsBrief').value.trim();
+          var btn = document.getElementById('bsBtn');
+          var note = document.getElementById('bsNote');
+          if(!email || !brief) return;
+          btn.disabled = true; var orig = btn.textContent; btn.textContent = "Sending…";
+          fetch(ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ product: "bidsmith-case-showcase", email: email, brief: brief, source: location.href })
+          }).then(function(){
+            f.reset();
+            btn.textContent = "Got it ✓";
+            note.textContent = "Got it. I'll email the artifact within 48h.";
+          }).catch(function(){
+            btn.disabled = false; btn.textContent = orig;
+            note.textContent = "Send failed. Email kushal@kushalsm.com directly.";
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

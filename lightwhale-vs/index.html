@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lightwhale vs Fedora CoreOS, Talos &amp; Flatcar — when each one is the right call</title>
+    <meta name="description" content="An honest, side-by-side comparison of Lightwhale and the other immutable container-Linux distros. Built as a v0 artifact for Stephan." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,wght@0,400;1,400;0,600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #07111a;
+        --bg-2: #0d1925;
+        --bg-3: #11202f;
+        --line: #1c2f44;
+        --line-2: #243a52;
+        --text: #e6ecf2;
+        --text-soft: #b9c3cf;
+        --muted: #7d8a99;
+        --muted-2: #4f5d6c;
+        --accent: #5ad6e8;        /* whale-back cyan */
+        --accent-2: #ffd68a;      /* warning amber */
+        --accent-soft: rgba(90, 214, 232, 0.10);
+        --line-cyan: rgba(90, 214, 232, 0.30);
+        --bad: #f47272;
+        --good: #7ddc9b;
+        --partial: #ffd68a;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.55;
+        font-size: 15px;
+        -webkit-font-smoothing: antialiased;
+      }
+      a { color: inherit; text-decoration: none; }
+      .wrap { width: min(1100px, calc(100% - 40px)); margin: 0 auto; }
+      code, pre, kbd { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+      .nav {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 22px 0; border-bottom: 1px solid var(--line);
+      }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+      .brand-mark {
+        width: 26px; height: 26px;
+        background: var(--accent); color: var(--bg);
+        border-radius: 6px;
+        display: grid; place-items: center;
+        font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px;
+      }
+      .nav-links { display: flex; gap: 22px; color: var(--text-soft); font-size: 14px; }
+      .nav-right { display: flex; gap: 12px; align-items: center; }
+      .pill {
+        padding: 7px 12px; border-radius: 999px;
+        background: var(--bg-2); border: 1px solid var(--line);
+        font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      }
+
+      /* hero */
+      .hero { padding: 80px 0 50px; max-width: 880px; margin: 0 auto; text-align: center; }
+      .eyebrow {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 6px 14px; border-radius: 999px;
+        background: var(--accent-soft); border: 1px solid var(--line-cyan);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px; letter-spacing: 0.06em;
+        color: var(--accent); margin-bottom: 26px;
+      }
+      h1 {
+        font-family: 'Newsreader', Georgia, serif;
+        font-size: clamp(38px, 5.6vw, 60px);
+        font-weight: 600; line-height: 1.04; letter-spacing: -0.022em;
+        margin: 0 0 22px;
+      }
+      h1 em { font-style: italic; color: var(--accent); }
+      .lede { font-size: 19px; color: var(--text-soft); max-width: 62ch; margin: 0 auto; }
+
+      /* tldr */
+      .tldr-grid {
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+        margin: 60px 0 70px;
+      }
+      .tldr {
+        background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px;
+        padding: 18px 18px 20px;
+      }
+      .tldr.lw { border-color: var(--line-cyan); background: linear-gradient(180deg, rgba(90,214,232,0.06), var(--bg-2)); }
+      .tldr h3 { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
+      .tldr h3 .v { color: var(--muted); font-weight: 500; font-family: 'JetBrains Mono', monospace; font-size: 11px; margin-left: 6px; }
+      .tldr .who { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+      .tldr p { font-size: 13.5px; color: var(--text-soft); }
+
+      /* matrix */
+      .section { padding: 50px 0; border-top: 1px solid var(--line); }
+      .section .kicker { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; margin-bottom: 12px; }
+      .section h2 { font-family: 'Newsreader', serif; font-size: clamp(28px, 3.8vw, 40px); font-weight: 600; line-height: 1.1; letter-spacing: -0.018em; margin-bottom: 12px; }
+      .section h2 em { color: var(--accent); font-style: italic; }
+      .section .sub { color: var(--text-soft); max-width: 65ch; }
+
+      table.matrix {
+        width: 100%; border-collapse: separate; border-spacing: 0;
+        margin-top: 30px; font-size: 14px;
+        border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+      }
+      table.matrix th, table.matrix td {
+        text-align: left; padding: 14px 16px; vertical-align: top;
+        border-bottom: 1px solid var(--line);
+      }
+      table.matrix tr:last-child th, table.matrix tr:last-child td { border-bottom: none; }
+      table.matrix thead th {
+        background: var(--bg-2); font-weight: 600; font-size: 13px;
+        color: var(--text); border-bottom: 1px solid var(--line-2);
+      }
+      table.matrix thead th.lw { color: var(--accent); }
+      table.matrix tbody th {
+        background: var(--bg-2); font-weight: 500; color: var(--text-soft);
+        font-size: 13px; width: 200px;
+      }
+      table.matrix td { color: var(--text-soft); }
+      table.matrix td.lw { background: rgba(90,214,232,0.04); color: var(--text); }
+      table.matrix td .tag {
+        display: inline-block; padding: 1px 8px; border-radius: 4px;
+        font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+        background: var(--bg-3); border: 1px solid var(--line-2); color: var(--muted);
+        margin-right: 4px;
+      }
+      table.matrix td .tag.good { color: var(--good); border-color: rgba(125,220,155,0.3); background: rgba(125,220,155,0.06); }
+      table.matrix td .tag.bad { color: var(--bad); border-color: rgba(244,114,114,0.3); background: rgba(244,114,114,0.06); }
+      table.matrix td .tag.mid { color: var(--partial); border-color: rgba(255,214,138,0.3); background: rgba(255,214,138,0.06); }
+
+      /* recommendation cards */
+      .rec-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 30px; }
+      .rec {
+        background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px;
+        padding: 22px 22px 24px;
+      }
+      .rec.lw { border-color: var(--line-cyan); background: linear-gradient(180deg, rgba(90,214,232,0.05), var(--bg-2)); }
+      .rec h4 { font-size: 16px; margin-bottom: 4px; }
+      .rec h4 .label { color: var(--accent); }
+      .rec .who { color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; }
+      .rec p { font-size: 14px; color: var(--text-soft); margin-bottom: 10px; }
+      .rec ul { list-style: none; }
+      .rec li { font-size: 13.5px; color: var(--text-soft); padding-left: 18px; position: relative; margin-bottom: 6px; }
+      .rec li:before { content: "›"; color: var(--accent); position: absolute; left: 0; top: -1px; }
+
+      /* deep notes */
+      .notes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 30px; }
+      .note {
+        background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px;
+        padding: 20px 22px;
+      }
+      .note h4 { font-size: 15px; margin-bottom: 8px; color: var(--text); }
+      .note p { font-size: 13.5px; color: var(--text-soft); }
+      .note p + p { margin-top: 8px; }
+
+      /* footer */
+      .footer { padding: 60px 0 80px; border-top: 1px solid var(--line); margin-top: 50px; }
+      .footer-card {
+        background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px;
+        padding: 36px 36px 40px; max-width: 720px; margin: 0 auto;
+      }
+      .footer-card .eyebrow { background: rgba(255,214,138,0.08); border-color: rgba(255,214,138,0.30); color: var(--accent-2); }
+      .footer-card h3 { font-family: 'Newsreader', serif; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 12px; }
+      .footer-card p { color: var(--text-soft); font-size: 14.5px; margin-bottom: 12px; }
+      .footer-card a.cta {
+        display: inline-block; margin-top: 8px;
+        background: var(--accent); color: var(--bg); font-weight: 600;
+        padding: 10px 18px; border-radius: 8px; font-size: 14px;
+      }
+
+      .meta-foot { text-align: center; color: var(--muted); font-size: 12px; margin-top: 24px; }
+      .meta-foot a { color: var(--accent); }
+
+      @media (max-width: 800px) {
+        .tldr-grid, .rec-grid, .notes { grid-template-columns: 1fr; }
+        table.matrix thead { display: none; }
+        table.matrix tbody th { width: auto; display: block; }
+        table.matrix td { display: block; }
+        table.matrix td:before { content: attr(data-col); display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="nav">
+        <a class="brand" href="https://lightwhale.asklandd.dk">
+          <span class="brand-mark">L</span>
+          <span>Lightwhale comparison</span>
+        </a>
+        <div class="nav-right">
+          <a class="pill" href="https://lightwhale.asklandd.dk">lightwhale.asklandd.dk →</a>
+        </div>
+      </div>
+
+      <section class="hero">
+        <span class="eyebrow">A v0 artifact for Stephan · built in 60 minutes</span>
+        <h1>Lightwhale vs <em>Fedora CoreOS, Talos &amp; Flatcar</em> — when each one is the right call</h1>
+        <p class="lede">
+          The Show HN comments asked the same question four different ways:
+          <em>why this over the existing immutable distros?</em> This is the page that should answer it —
+          honest, side-by-side, with no overclaiming. Use it, fork it, keep what's true.
+        </p>
+      </section>
+
+      <section>
+        <div class="tldr-grid">
+          <div class="tldr lw">
+            <h3>Lightwhale <span class="v">3.0</span></h3>
+            <div class="who">For: home servers</div>
+            <p>Boot a USB ISO, run Docker. No YAML, no Ignition, no <code>talosctl</code>. The OS gets out of the way.</p>
+          </div>
+          <div class="tldr">
+            <h3>Fedora CoreOS</h3>
+            <div class="who">For: cloud fleets</div>
+            <p>Atomic <code>rpm-ostree</code> updates, Ignition-only first boot. Built for replicated cloud workloads.</p>
+          </div>
+          <div class="tldr">
+            <h3>Talos Linux</h3>
+            <div class="who">For: Kubernetes ops</div>
+            <p>API-driven, no SSH. Talos exists to run Kubernetes clusters and nothing else.</p>
+          </div>
+          <div class="tldr">
+            <h3>Flatcar Linux</h3>
+            <div class="who">For: CoreOS continuity</div>
+            <p>The CoreOS-fork-with-a-vendor. Like Fedora CoreOS, but maintained by Microsoft via Kinvolk.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="kicker">Section 1</div>
+        <h2>Where they actually <em>differ</em></h2>
+        <p class="sub">The marketing copy on every immutable-Linux site sounds the same — "minimal", "secure", "atomic updates". The honest differences are downstream of one decision: <em>what scale are you running this at, and how much config language are you willing to learn before first boot?</em></p>
+
+        <table class="matrix">
+          <thead>
+            <tr>
+              <th>Dimension</th>
+              <th class="lw">Lightwhale</th>
+              <th>Fedora CoreOS</th>
+              <th>Talos Linux</th>
+              <th>Flatcar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>First-boot config</th>
+              <td class="lw" data-col="Lightwhale"><span class="tag good">none</span> Boot &amp; go. Optional <code>setup-wifi</code>, <code>setup-hostname</code>.</td>
+              <td data-col="Fedora CoreOS"><span class="tag mid">Ignition</span> JSON file required at first boot.</td>
+              <td data-col="Talos"><span class="tag mid">machine config</span> YAML +<code>talosctl apply-config</code>.</td>
+              <td data-col="Flatcar"><span class="tag mid">Ignition / CL config</span></td>
+            </tr>
+            <tr>
+              <th>Container runtime</th>
+              <td class="lw" data-col="Lightwhale"><span class="tag good">Docker Engine</span></td>
+              <td data-col="Fedora CoreOS"><span class="tag">Podman</span> (rootless-friendly)</td>
+              <td data-col="Talos"><span class="tag">containerd</span> (k8s-managed only)</td>
+              <td data-col="Flatcar"><span class="tag">Docker / containerd</span></td>
+            </tr>
+            <tr>
+              <th>Kubernetes assumption</th>
+              <td class="lw" data-col="Lightwhale"><span class="tag good">none</span> just runs containers</td>
+              <td data-col="Fedora CoreOS"><span class="tag">optional</span> works either way</td>
+              <td data-col="Talos"><span class="tag bad">required</span> the OS <em>is</em> the k8s node</td>
+              <td data-col="Flatcar"><span class="tag">optional</span></td>
+            </tr>
+            <tr>
+              <th>Update model</th>
+              <td class="lw" data-col="Lightwhale">Swap immutable image, reboot. Manual.</td>
+              <td data-col="Fedora CoreOS">Automatic <code>rpm-ostree</code> with rollback.</td>
+              <td data-col="Talos">Dual-disk image swap with rollback, API-triggered.</td>
+              <td data-col="Flatcar">Automatic OTA channels.</td>
+            </tr>
+            <tr>
+              <th>SSH access</th>
+              <td class="lw" data-col="Lightwhale"><span class="tag good">yes</span></td>
+              <td data-col="Fedora CoreOS"><span class="tag good">yes</span></td>
+              <td data-col="Talos"><span class="tag bad">no</span> API-only by design</td>
+              <td data-col="Flatcar"><span class="tag good">yes</span></td>
+            </tr>
+            <tr>
+              <th>Hardware</th>
+              <td class="lw" data-col="Lightwhale">x86-64 only. <span class="tag bad">no Pi, no Apple silicon</span></td>
+              <td data-col="Fedora CoreOS">x86-64, ARM64, s390x, ppc64le</td>
+              <td data-col="Talos">x86-64, ARM64 (incl. Pi 4/5)</td>
+              <td data-col="Flatcar">x86-64, ARM64</td>
+            </tr>
+            <tr>
+              <th>Install</th>
+              <td class="lw" data-col="Lightwhale">Write ISO to USB, live-boot. Persistence opt-in via magic file <code>lightwhale-please-format-me</code>.</td>
+              <td data-col="Fedora CoreOS">PXE / cloud image / coreos-installer.</td>
+              <td data-col="Talos">PXE / metal-amd64 ISO / cloud images.</td>
+              <td data-col="Flatcar">Same as CoreOS lineage.</td>
+            </tr>
+            <tr>
+              <th>Maintainer</th>
+              <td class="lw" data-col="Lightwhale">Solo (Stephan Henningsen, Asklandd)</td>
+              <td data-col="Fedora CoreOS">Fedora CoreOS WG (Red Hat)</td>
+              <td data-col="Talos">Sidero Labs (commercial)</td>
+              <td data-col="Flatcar">Microsoft (Kinvolk)</td>
+            </tr>
+            <tr>
+              <th>"Hello, Docker"<br>time-to-first-container</th>
+              <td class="lw" data-col="Lightwhale"><span class="tag good">~5 min</span> from USB write to <code>docker run</code></td>
+              <td data-col="Fedora CoreOS">~30–90 min (write Ignition, boot, configure)</td>
+              <td data-col="Talos">~45–120 min (config, talosctl, bootstrap k8s)</td>
+              <td data-col="Flatcar">~30–90 min (similar to FCOS)</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <div class="kicker">Section 2</div>
+        <h2>Use the <em>right</em> one for the job</h2>
+        <p class="sub">Honesty serves Lightwhale better than overclaiming. The cohorts below are the ones for which each project is genuinely the best fit. Telling someone "go use Talos, you'll be happier" when they're spinning up a 50-node cluster is how trust gets built.</p>
+
+        <div class="rec-grid">
+          <div class="rec lw">
+            <h4>Use <span class="label">Lightwhale</span></h4>
+            <div class="who">If you're on the home-server side of the line</div>
+            <p>You want one or two boxes in your house running Plex, Home Assistant, Immich, Nextcloud, a torrent box, a game server. You don't want to spend a weekend learning a config language. You'd rather <code>docker run</code> than write Ignition JSON.</p>
+            <ul>
+              <li>You like that the OS lives on a USB stick, your data lives on a separate drive, and the worst-case recovery is "reboot off a clean image".</li>
+              <li>You're fine doing updates yourself — no auto-OTA needed.</li>
+              <li>Your hardware is x86-64. (If you're on a Pi or M-series Mac, this isn't your distro.)</li>
+            </ul>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">Talos Linux</span></h4>
+            <div class="who">If you're running Kubernetes in production</div>
+            <p>You want zero attack surface, no SSH, full API-driven node lifecycle. You're operating tens to thousands of k8s nodes and you want declarative rollbacks. The learning curve is the price of admission.</p>
+            <ul>
+              <li>You already know <code>talosctl</code> or are willing to learn it.</li>
+              <li>You want immutable + minimal + audited, not just "small and simple".</li>
+              <li>You're <em>not</em> running this for fun — it's load-bearing infra.</li>
+            </ul>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">Fedora CoreOS</span> or <span class="label">Flatcar</span></h4>
+            <div class="who">If you're between the two extremes</div>
+            <p>You want automatic OTA updates and atomic rollbacks. You're deploying containerized workloads on cloud or bare metal at fleet scale. You don't need k8s but you do need a vendor backing the update channel.</p>
+            <ul>
+              <li>Pick <strong>Fedora CoreOS</strong> if you want Red Hat's release cadence and Podman.</li>
+              <li>Pick <strong>Flatcar</strong> if you want CoreOS continuity with commercial Microsoft/Kinvolk support and Docker.</li>
+              <li>Both want you to write Ignition. That's the cost.</li>
+            </ul>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">a regular distro</span></h4>
+            <div class="who">If immutability is solving a problem you don't have</div>
+            <p>If you're running one Docker container on a Raspberry Pi for a friend's website, the immutability premium isn't free — it costs configuration ergonomics. Plain Ubuntu/Debian + <code>apt install docker-compose</code> is still a great answer for a lot of cases.</p>
+            <ul>
+              <li>Lightwhale's pitch <em>against</em> this is: yes, Ubuntu boots and runs Docker too — but in two years your <code>/etc</code> is a graveyard of half-applied tutorials. Lightwhale's <code>/etc</code> resets every reboot unless you tell it not to.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="kicker">Section 3</div>
+        <h2>Honest answers to the <em>HN concerns</em></h2>
+        <p class="sub">Three concerns came up in the Show HN thread. Pretending they didn't would make this page worse than useless. Here's the straight read.</p>
+
+        <div class="notes">
+          <div class="note">
+            <h4>"Why not Fedora CoreOS / Talos / IncusOS — they have backing?"</h4>
+            <p>True, and that backing means production rigor, larger CVE response teams, and a maintenance contract you can buy. Lightwhale doesn't compete on that axis.</p>
+            <p>It competes on the axis those projects don't serve well: the home user who wants to run Docker without becoming a part-time SRE. That's a real cohort, it just isn't the one Red Hat or Sidero Labs build for.</p>
+          </div>
+          <div class="note">
+            <h4>"Ubuntu+Docker is one line — what's the burden Lightwhale removes?"</h4>
+            <p>The first-day burden is similar. The 24-month burden isn't.</p>
+            <p>On Ubuntu, every fix you ever apply, every config tweak, every PPA you add, every "I'll just try this" lives in your root filesystem permanently. Lightwhale flips the default: persistence is opt-in. A reboot is a free reset.</p>
+          </div>
+          <div class="note">
+            <h4>"The repo looked stale — is 3.0 actually shipping?"</h4>
+            <p>The Show HN clarified the active source is at <a href="https://bitbucket.org/asklandd/lightwhale/src/3.0.0/">bitbucket.org/asklandd/lightwhale</a>, not the GitHub mirror.</p>
+            <p>This page should link there directly so anyone who lands here doesn't repeat the confusion. (If you ship this page, point the "source" CTA at Bitbucket and mark the GitHub mirror as legacy.)</p>
+          </div>
+          <div class="note">
+            <h4>"You only mentioned home use — does it work in production?"</h4>
+            <p>Stephan said in the thread: <em>"Lightwhale is already running in production. I'm only announcing it for home servers because that's where most people are willing to try it out."</em></p>
+            <p>That sentence belongs on the homepage. Right now a visitor has to read HN to learn it.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="footer">
+        <div class="footer-card">
+          <span class="eyebrow">From the agent who built this page</span>
+          <h3>This is what bidsmith does — sends you the work, not the pitch.</h3>
+          <p>I'm Kushal. I'm building <a href="https://bidsmith.kushalsm.com" style="color: var(--accent);">bidsmith</a>: an agent that reads a freelance brief and ships a real artifact (page, dashboard, fix, comparison — whatever moves the bid forward), so the cover letter stops being copy-paste cope.</p>
+          <p>This comparison page is artifact <strong>#004</strong>. The earlier ones are at <a href="../" style="color: var(--accent);">the showcase</a>. None of them were prompted by the recipient — each one is bidsmith's bet that the artifact is more persuasive than any pitch about the artifact would be.</p>
+          <p>If this page is useful, drop it on <a href="https://lightwhale.asklandd.dk" style="color: var(--accent);">lightwhale.asklandd.dk</a> as a sub-page or fork it to your own copy. If parts are wrong, tell me and I'll fix them. If you'd rather I disappear, also fine — no follow-up.</p>
+          <p style="margin-top:18px; color:var(--text);"><strong>Building something and want a v0 marketing page like this for your own product?</strong> Send the URL — I&rsquo;ll have it back to you in &lt; 48h.</p>
+          <form id="briefForm" style="display:grid; gap:10px; max-width:520px; margin-top:14px;">
+            <input id="bsEmail" name="email" type="email" required placeholder="your email"
+              style="min-height:44px; padding:0 14px; border-radius:8px; border:1px solid var(--line-2); background:var(--bg-3); color:var(--text); font:inherit; font-size:15px;" />
+            <input id="bsBrief" name="brief" type="text" required placeholder="your product URL — or a 1-line summary"
+              style="min-height:44px; padding:0 14px; border-radius:8px; border:1px solid var(--line-2); background:var(--bg-3); color:var(--text); font:inherit; font-size:14px;" />
+            <button id="bsBtn" type="submit" class="cta" style="margin-top:6px; align-self:flex-start; cursor:pointer; border:0;">Send me the brief →</button>
+            <div id="bsNote" style="font-size:13px; color:var(--text-soft); margin-top:6px;">I reply within ~48h with the artifact.</div>
+          </form>
+        </div>
+        <div class="meta-foot">
+          v0 — built in ~60 min · 2026-04-26 · <a href="../">bidsmith case studies</a> · <a href="https://lightwhale.asklandd.dk">lightwhale.asklandd.dk</a>
+        </div>
+      </section>
+    </div>
+    <script>
+      (function(){
+        var ENDPOINT = "https://script.google.com/macros/s/AKfycbx09f-4aNddxzmVVUStNJwjzVip5u3PqVYN7GSgO83FDz5DqYLEFqy4ysARdZ6oeDo8rA/exec";
+        var f = document.getElementById('briefForm'); if(!f) return;
+        f.addEventListener('submit', function(e){
+          e.preventDefault();
+          var email = document.getElementById('bsEmail').value.trim();
+          var brief = document.getElementById('bsBrief').value.trim();
+          var btn = document.getElementById('bsBtn');
+          var note = document.getElementById('bsNote');
+          if(!email || !brief) return;
+          btn.disabled = true; var orig = btn.textContent; btn.textContent = "Sending…";
+          fetch(ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ product: "bidsmith-case-004", email: email, brief: brief, source: location.href })
+          }).then(function(){
+            f.reset();
+            btn.textContent = "Got it ✓";
+            note.textContent = "Slot taken. I'll email the artifact within 48h.";
+          }).catch(function(){
+            btn.disabled = false; btn.textContent = orig;
+            note.textContent = "Send failed. Email kushal@kushalsm.com directly.";
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
