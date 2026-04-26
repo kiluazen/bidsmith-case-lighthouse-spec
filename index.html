@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bidsmith case study — a real Upwork-style brief, taken to a deployed page in 25 minutes</title>
+    <meta name="description" content="What it looks like when an Upwork bid ships the work, not the promise." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --paper: #f3ecda;
+        --paper-2: #ebe2c9;
+        --ink: #14110d;
+        --ink-soft: #2c2820;
+        --muted: #6b6452;
+        --muted-2: #9a937f;
+        --line: #d4ccb6;
+        --panel: #fffcf2;
+        --accent: #b8431e;
+        --accent-soft: #f4dccc;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+        background: var(--paper);
+        color: var(--ink);
+        line-height: 1.55;
+      }
+      a { color: inherit; }
+      .wrap { width: min(880px, calc(100% - 40px)); margin: 0 auto; padding: 50px 0; }
+
+      .nav { display: flex; justify-content: space-between; padding-bottom: 20px; }
+      .brand { font-weight: 700; text-decoration: none; }
+      .brand .smith { color: var(--accent); }
+
+      .kicker {
+        font-family: 'JetBrains Mono', monospace; font-size: 11px;
+        text-transform: uppercase; letter-spacing: 0.2em;
+        color: var(--accent); margin: 30px 0 14px;
+      }
+      h1 {
+        font-family: 'Fraunces', serif;
+        font-size: clamp(38px, 5.4vw, 60px);
+        font-weight: 800; line-height: 1.0; letter-spacing: -0.02em;
+        margin: 0 0 18px;
+      }
+      h1 em { color: var(--accent); font-style: italic; }
+      .lede {
+        font-size: 19px; color: var(--ink-soft); max-width: 60ch;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 26px;
+        margin: 30px 0;
+      }
+      .panel h2 {
+        font-family: 'Fraunces', serif;
+        font-size: 24px; margin: 0 0 12px;
+        font-weight: 700;
+      }
+      .panel h2 em { color: var(--accent); font-style: italic; }
+      .panel p { color: var(--ink-soft); margin: 0 0 12px; font-size: 16px; }
+      .panel pre {
+        background: var(--paper-2);
+        border-left: 3px solid var(--accent);
+        padding: 16px 18px; border-radius: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px; line-height: 1.65;
+        color: var(--ink-soft);
+        margin: 0; white-space: pre-wrap;
+      }
+
+      .meta {
+        display: grid; grid-template-columns: repeat(3, 1fr);
+        gap: 12px; margin: 30px 0;
+      }
+      .meta-cell {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 16px 18px;
+      }
+      .meta-cell .k {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px; text-transform: uppercase;
+        letter-spacing: 0.16em; color: var(--muted); margin-bottom: 6px;
+      }
+      .meta-cell .v {
+        font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700;
+      }
+
+      .open-btn {
+        display: inline-flex; align-items: center; gap: 10px;
+        margin: 20px 0;
+        padding: 16px 24px; border-radius: 10px;
+        background: var(--ink); color: var(--paper);
+        text-decoration: none; font-weight: 600; font-size: 16px;
+      }
+      .open-btn:hover { transform: translateY(-1px); }
+      .open-btn .arr {
+        font-family: 'JetBrains Mono', monospace; font-weight: 700;
+      }
+
+      .proof {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 24px 28px;
+        margin: 30px 0;
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 17px;
+        line-height: 1.6;
+        color: var(--ink-soft);
+      }
+      .proof strong { font-style: normal; color: var(--ink); font-weight: 700; }
+
+      .cta {
+        background: var(--ink); color: var(--paper);
+        border-radius: 14px; padding: 36px;
+        margin: 40px 0 20px;
+      }
+      .cta h2 {
+        color: var(--paper);
+        font-family: 'Fraunces', serif;
+        font-size: 28px; font-weight: 800;
+        margin: 0 0 12px;
+      }
+      .cta p { color: #c9c1ad; max-width: 50ch; }
+      .cta .btn {
+        display: inline-block;
+        padding: 12px 22px;
+        background: var(--accent); color: white;
+        border-radius: 8px; text-decoration: none;
+        font-weight: 600; margin-top: 14px;
+      }
+
+      footer {
+        color: var(--muted); font-size: 13px;
+        padding-top: 30px; border-top: 1px solid var(--line);
+      }
+
+      @media (max-width: 600px) {
+        .meta { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <nav class="nav">
+        <a class="brand" href="https://bidsmith.kushalsm.com">bid<span class="smith">smith</span> · case study</a>
+        <a href="https://bidsmith.kushalsm.com" style="color: var(--muted); text-decoration: none; font-size: 14px;">bidsmith.kushalsm.com →</a>
+      </nav>
+
+      <div class="kicker">case study #001 · 2026-04-26</div>
+      <h1>An Upwork-style brief, taken from <em>"send me a quote"</em> to a deployed landing in 25 minutes.</h1>
+      <p class="lede">
+        Most Upwork bids on a job like this one open with "I have 5+ years of experience in landing pages
+        and would love to discuss." This is what bidsmith does instead.
+      </p>
+
+      <div class="meta">
+        <div class="meta-cell"><div class="k">brief shape</div><div class="v">SaaS landing</div></div>
+        <div class="meta-cell"><div class="k">artifact</div><div class="v">Deployed page</div></div>
+        <div class="meta-cell"><div class="k">time-to-deploy</div><div class="v">25 min</div></div>
+      </div>
+
+      <div class="panel">
+        <h2>The brief</h2>
+        <p>This is a fabricated-but-typical Upwork landing-page brief. It is the genre — opinionated indie SaaS, fixed budget, fast turnaround — that the bidsmith pitch is sharpest for.</p>
+        <pre>Looking for a freelancer to build the marketing landing for our new product, Lighthouse Spec. We help small product teams turn rough Notion docs into clean, stakeholder-ready specs.
+
+Need:
+- A single-page landing
+- Strong hero, 3 value props, how-it-works, pricing (Free / $19 Pro / Team-quoted), contact form
+- Modern, opinionated design — not a startup template
+
+Budget: $400-600 fixed.
+Need it in 5 days.</pre>
+      </div>
+
+      <div class="panel">
+        <h2>The artifact <em>(open in a new tab)</em></h2>
+        <p>A real deployed page — copy, type, layout, contact form, all of it. This is the file that would be attached to the bid as <code>landing.html</code>, plus a hosted preview link.</p>
+        <a href="./landing/" target="_blank" class="open-btn">Open the deployed landing <span class="arr">↗</span></a>
+        <p style="font-size: 14px; color: var(--muted); margin-top: 8px;">Hosted alongside this case study on GitHub Pages. Single HTML file, no dependencies.</p>
+      </div>
+
+      <div class="panel">
+        <h2>The proposal copy that gets attached</h2>
+        <p>Two short paragraphs and a link. Not a cover letter.</p>
+        <pre>Hi —
+
+I read your brief and built the first version of Lighthouse Spec's landing in
+25 minutes. Live preview here: [link]. The HTML file is attached to this bid.
+
+The opinionated calls I made (so you can argue with them before I do more):
+- Hero leads on "rough Notion doc" pain, not "AI-powered specs"
+- Pricing is 3 tiers with a real "Team quoted" — no fake enterprise gate
+- Contact form is one question: "send your messiest doc"
+
+If the artifact is in the right ballpark, I'd love to take it from v0 to
+ship-ready: real form backend, your brand, copy edits, mobile polish. My
+$ would land at the lower end of your range.
+
+— Kushal</pre>
+      </div>
+
+      <div class="proof">
+        Why this works: the bid <strong>opens with the work</strong>. The client clicks the preview link
+        before reading any sentence about the freelancer. The decision the client has to make goes from
+        "do I trust this person?" to "do I want this version, or do I want a different version?". That
+        is a much smaller, much more answerable decision.
+      </div>
+
+      <div class="cta">
+        <h2>Want one for your real Upwork bid?</h2>
+        <p>
+          I'm hand-running bidsmith on real bids before automating. Send me the next Upwork
+          job you'd actually apply to — I'll personally produce the artifact + the proposal
+          copy. Free. Worst case you keep what I send. Reach me at
+          <a style="color: white; text-decoration: underline;" href="mailto:kushal@kushalsm.com">kushal@kushalsm.com</a>.
+        </p>
+        <a class="btn" href="mailto:kushal@kushalsm.com?subject=bidsmith%20—%20want%20one%20for%20my%20bid">Email me your next brief</a>
+      </div>
+
+      <footer>
+        bidsmith — send the work, not the promise. <a href="https://bidsmith.kushalsm.com">bidsmith.kushalsm.com</a> · <a href="https://kushalsm.com">kushalsm.com</a>
+      </footer>
+    </div>
+  </body>
+</html>

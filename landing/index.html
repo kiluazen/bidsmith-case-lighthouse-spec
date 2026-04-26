@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lighthouse Spec — Turn rough Notion docs into specs your engineers will actually read</title>
+    <meta name="description" content="Lighthouse Spec turns a messy Notion brief into a clean, stakeholder-ready product spec in under five minutes." />
+    <meta property="og:title" content="Lighthouse Spec" />
+    <meta property="og:description" content="Turn rough Notion docs into specs your engineers will actually read." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f4ee;
+        --bg-2: #efe9dd;
+        --ink: #14141a;
+        --ink-soft: #2c2c34;
+        --muted: #6c6a78;
+        --muted-2: #98969f;
+        --line: #d8d2c4;
+        --panel: #ffffff;
+        --accent: #1f5dff;
+        --accent-soft: #e6edff;
+        --highlight: #ffe27a;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        line-height: 1.55;
+      }
+      a { color: inherit; }
+      .wrap { width: min(1140px, calc(100% - 40px)); margin: 0 auto; }
+
+      /* nav */
+      .nav {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 24px 0;
+      }
+      .brand {
+        display: inline-flex; align-items: center; gap: 12px;
+        text-decoration: none; font-weight: 700; font-size: 18px;
+      }
+      .brand-mark {
+        width: 30px; height: 30px;
+        background: var(--ink); color: var(--bg);
+        display: grid; place-items: center; border-radius: 8px;
+        font-family: 'Instrument Serif', serif; font-size: 22px; font-style: italic;
+      }
+      .nav-links {
+        display: flex; gap: 26px; color: var(--muted); font-size: 14px;
+      }
+      .nav-links a { text-decoration: none; }
+      .nav-links a:hover { color: var(--ink); }
+      .btn {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 11px 18px; border-radius: 8px;
+        background: var(--ink); color: var(--bg);
+        text-decoration: none; font-weight: 600; font-size: 14px;
+        border: 1px solid var(--ink);
+        transition: transform 0.12s;
+      }
+      .btn:hover { transform: translateY(-1px); }
+      .btn.ghost {
+        background: transparent; color: var(--ink);
+      }
+      .btn.lg {
+        padding: 14px 22px; font-size: 15px; border-radius: 10px;
+      }
+      .btn.accent { background: var(--accent); color: white; border-color: var(--accent); }
+
+      /* hero */
+      .hero { padding: 50px 0 80px; }
+      h1 {
+        font-family: 'Instrument Serif', serif;
+        font-size: clamp(48px, 7vw, 86px);
+        line-height: 1.0;
+        letter-spacing: -0.02em;
+        margin: 0 0 28px;
+        font-weight: 400;
+      }
+      h1 em {
+        font-style: italic; color: var(--accent);
+      }
+      h1 .hl {
+        background: linear-gradient(180deg, transparent 60%, var(--highlight) 60%);
+        font-style: italic;
+        padding: 0 4px;
+      }
+      .lede {
+        font-size: 20px; color: var(--ink-soft);
+        max-width: 56ch; margin: 0 0 32px;
+      }
+      .lede strong { font-weight: 600; }
+      .cta-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+      .micro { color: var(--muted); font-size: 13px; margin-left: 8px; }
+
+      .hero-grid {
+        display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+        gap: 50px; align-items: center;
+      }
+
+      /* before/after card */
+      .ba {
+        position: relative;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: 0 30px 60px rgba(20, 16, 8, 0.08);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+      .ba-tabs {
+        display: flex; gap: 6px; margin-bottom: 14px;
+      }
+      .ba-tab {
+        padding: 5px 11px; border-radius: 6px;
+        background: var(--bg-2); color: var(--muted);
+        font-family: 'JetBrains Mono', monospace; font-size: 11px;
+        font-weight: 600;
+      }
+      .ba-tab.active { background: var(--ink); color: var(--bg); }
+      .ba-pre {
+        background: #fbfaf6;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 14px;
+        white-space: pre-wrap;
+        color: var(--ink-soft);
+        max-height: 300px;
+        overflow: hidden;
+        position: relative;
+      }
+      .ba-pre.before { color: var(--muted); }
+      .ba-pre.before::after {
+        content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 60px;
+        background: linear-gradient(180deg, transparent, #fbfaf6);
+      }
+      .ba-pre.after { background: white; }
+      .ba-tag {
+        position: absolute; top: -10px; left: 18px;
+        background: var(--accent); color: white;
+        padding: 3px 10px; border-radius: 999px; font-weight: 700;
+        font-family: 'JetBrains Mono', monospace; font-size: 10px;
+        letter-spacing: 0.06em;
+      }
+
+      .ba-arrow {
+        text-align: center; padding: 8px 0;
+        font-family: 'JetBrains Mono', monospace; font-size: 11px;
+        color: var(--accent); letter-spacing: 0.12em; font-weight: 700;
+      }
+
+      /* sections */
+      section.s { padding: 80px 0; }
+      section.s.tight { padding: 50px 0; }
+      .kicker {
+        font-family: 'JetBrains Mono', monospace; font-size: 11px;
+        text-transform: uppercase; letter-spacing: 0.16em;
+        color: var(--accent); margin-bottom: 12px;
+      }
+      h2 {
+        font-family: 'Instrument Serif', serif;
+        font-size: clamp(34px, 4.4vw, 50px);
+        line-height: 1.05; letter-spacing: -0.015em;
+        margin: 0 0 16px; font-weight: 400;
+        max-width: 22ch;
+      }
+      h2 em { font-style: italic; color: var(--accent); }
+      .s p { margin: 0 0 14px; max-width: 60ch; color: var(--muted); font-size: 16px; }
+
+      /* value props */
+      .vp {
+        display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px; margin-top: 36px;
+      }
+      .vp-card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 26px;
+      }
+      .vp-num {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px; font-weight: 700;
+        color: var(--accent); letter-spacing: 0.1em;
+        margin-bottom: 10px;
+      }
+      .vp-card h3 {
+        font-family: 'Instrument Serif', serif;
+        font-size: 24px; line-height: 1.15;
+        font-weight: 400; margin: 0 0 10px;
+      }
+      .vp-card p { color: var(--muted); font-size: 14.5px; margin: 0; }
+
+      /* how it works */
+      .how {
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 12px; margin-top: 36px;
+      }
+      .step {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 22px;
+        position: relative;
+      }
+      .step-n {
+        font-family: 'Instrument Serif', serif;
+        font-size: 36px; font-style: italic; color: var(--accent);
+        line-height: 1; margin-bottom: 10px;
+      }
+      .step h4 {
+        margin: 0 0 6px; font-size: 15px;
+      }
+      .step p { margin: 0; color: var(--muted); font-size: 13.5px; }
+
+      /* pricing */
+      .price-grid {
+        display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px; margin-top: 36px;
+      }
+      .price {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 28px;
+      }
+      .price.feat {
+        background: var(--ink); color: var(--bg);
+        border-color: var(--ink);
+        position: relative;
+      }
+      .price.feat::before {
+        content: "most teams pick this";
+        position: absolute; top: -12px; left: 18px;
+        background: var(--highlight); color: var(--ink);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px; font-weight: 700;
+        padding: 4px 10px; border-radius: 999px;
+        letter-spacing: 0.04em;
+      }
+      .price-name {
+        font-family: 'Instrument Serif', serif;
+        font-size: 24px; font-weight: 400;
+        margin-bottom: 6px;
+      }
+      .price-tag {
+        font-family: 'Instrument Serif', serif;
+        font-size: 40px; font-weight: 400; line-height: 1;
+        margin: 16px 0 6px;
+      }
+      .price-tag .per {
+        font-family: Inter, sans-serif;
+        font-size: 14px; color: var(--muted);
+        font-weight: 500;
+      }
+      .price.feat .price-tag .per { color: var(--muted-2); }
+      .price ul {
+        list-style: none; padding: 0; margin: 18px 0 0;
+        font-size: 14px;
+      }
+      .price li {
+        padding: 7px 0; border-top: 1px solid var(--line);
+        display: flex; gap: 10px; align-items: flex-start;
+      }
+      .price.feat li { border-top-color: rgba(255,255,255,0.12); }
+      .price li::before {
+        content: "→"; color: var(--accent); font-weight: 700;
+      }
+      .price.feat li::before { color: var(--highlight); }
+
+      /* contact */
+      .contact-card {
+        background: var(--ink); color: var(--bg);
+        border-radius: 18px;
+        padding: 50px;
+        margin-top: 30px;
+      }
+      .contact-card h2 { color: var(--bg); }
+      .contact-card p { color: var(--muted-2); font-size: 16px; margin-bottom: 22px; }
+      .contact-form {
+        display: grid; grid-template-columns: 1fr 1fr auto;
+        gap: 10px; max-width: 720px;
+      }
+      .contact-form input {
+        min-height: 48px; padding: 0 16px;
+        border: 1px solid #3a3a45;
+        background: #1d1d24; color: var(--bg);
+        border-radius: 8px; font: inherit; font-size: 15px;
+      }
+      .contact-form input::placeholder { color: var(--muted-2); }
+      .contact-form button {
+        padding: 0 20px; min-height: 48px;
+        background: var(--accent); color: white;
+        border: 0; border-radius: 8px;
+        font: inherit; font-weight: 600; font-size: 15px;
+        cursor: pointer;
+      }
+      .contact-card .micro { color: var(--muted-2); margin: 14px 0 0; }
+
+      /* footer */
+      footer {
+        padding: 30px 0 50px; color: var(--muted); font-size: 13px;
+        border-top: 1px solid var(--line); margin-top: 50px;
+        display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+      }
+
+      @media (max-width: 880px) {
+        .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+        .vp, .price-grid { grid-template-columns: 1fr; }
+        .how { grid-template-columns: 1fr; }
+        .contact-form { grid-template-columns: 1fr; }
+        .nav-links { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="nav">
+        <a class="brand" href="/">
+          <span class="brand-mark">L</span>
+          Lighthouse Spec
+        </a>
+        <nav class="nav-links">
+          <a href="#how">How</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#contact">Contact</a>
+        </nav>
+        <a href="#contact" class="btn">Try free</a>
+      </header>
+
+      <section class="hero">
+        <div class="hero-grid">
+          <div>
+            <h1>
+              Turn the<br />
+              rough <span class="hl">Notion doc</span><br />
+              <em>into a spec.</em>
+            </h1>
+            <p class="lede">
+              Lighthouse Spec reads your messy product brief — half-formed thoughts,
+              meeting notes, screenshots — and ships back a clean, stakeholder-ready
+              spec your engineers will <strong>actually read</strong>.
+            </p>
+            <div class="cta-row">
+              <a href="#contact" class="btn lg accent">Try it on a real doc</a>
+              <a href="#how" class="btn lg ghost">See how it works</a>
+              <span class="micro">no card · 1 free spec</span>
+            </div>
+          </div>
+
+          <div class="ba">
+            <span class="ba-tag">demo</span>
+            <div class="ba-tabs">
+              <span class="ba-tab">your-notion-doc.md</span>
+              <span class="ba-tab active">spec.md</span>
+            </div>
+            <div class="ba-pre before">brain dump from team meet 4/12
+
+ok so user uploads a video, then we
+need to like... transcribe? maybe
+whisper? then GPT for the summary?
+need to think about cost. also pricing
+maybe per minute? sonia said 5min vid
+is the sweet spot. legal wants gdpr.
+also we promised demo on may 1 to nina
+todo: figure out the auth piece, I think
+clerk? or supabase? supabase gives us
+db too which is nice but...</div>
+            <div class="ba-arrow">▼ lighthouse-spec ▼</div>
+            <div class="ba-pre after">## VideoNotes — Day-1 Spec
+
+**Goal.** Upload a 5-min video,
+return a structured summary in <90s.
+
+**Scope, day 1**
+- Single-file upload (mp4, ≤500 MB)
+- Whisper-large transcription
+- GPT-4 summary (3 sections, fixed prompt)
+- Per-minute usage metering
+
+**Stack.** Supabase auth + Postgres,
+Cloudflare R2 for blobs, Vercel edge
+for the API surface.
+
+**Risks**
+1. Whisper cold-start on long videos
+2. GDPR retention default — store ≤30d
+3. Pricing-page friction — see §4
+
+**Demo dependency.** Auth + 1 happy
+path by Apr 28. Demo to Nina May 1.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="s tight">
+        <div class="kicker">why teams switch</div>
+        <h2>Specs that <em>read like a senior PM wrote them</em>, not like a meeting transcript.</h2>
+        <p style="font-size: 17px;">
+          Most product docs leak ambiguity into engineering. Engineers ask the same
+          questions in standup for two weeks while the spec sits half-edited. Lighthouse
+          collapses that loop.
+        </p>
+
+        <div class="vp">
+          <div class="vp-card">
+            <div class="vp-num">01</div>
+            <h3>Names the goal in one sentence.</h3>
+            <p>The spec opens with a single, testable goal sentence — not three paragraphs of context. If we can't write it, you don't have a spec yet.</p>
+          </div>
+          <div class="vp-card">
+            <div class="vp-num">02</div>
+            <h3>Pins risks before scope.</h3>
+            <p>Three honest risks at the top, before the bullet list of features. Most specs hide their risks at the bottom; engineers find them on day 4.</p>
+          </div>
+          <div class="vp-card">
+            <div class="vp-num">03</div>
+            <h3>Stops at "day-1 scope".</h3>
+            <p>Every spec is constrained to what ships in the first deployable cut. Out-of-scope items go to a separate "later" section, by name, by why.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="how" class="s">
+        <div class="kicker">how it works</div>
+        <h2>From <em>"ugh, write the spec"</em> to "ok, post it" in 4 minutes.</h2>
+
+        <div class="how">
+          <div class="step">
+            <div class="step-n">i</div>
+            <h4>Drop in your Notion link, or paste raw notes.</h4>
+            <p>We read meeting notes, transcripts, Slack snippets, screenshots, half-finished docs. Messier the better.</p>
+          </div>
+          <div class="step">
+            <div class="step-n">ii</div>
+            <h4>Pick the spec shape.</h4>
+            <p>Day-1 scope, full PRD, RFC, or "engineer brief". Each shape has its own house style — and the house style is opinionated.</p>
+          </div>
+          <div class="step">
+            <div class="step-n">iii</div>
+            <h4>Lighthouse drafts. You red-pen.</h4>
+            <p>You see the draft inline next to the source. Click any sentence to surface the source paragraph. Edit, accept, ship.</p>
+          </div>
+          <div class="step">
+            <div class="step-n">iv</div>
+            <h4>Push to Notion, Linear, or Markdown.</h4>
+            <p>Native sync to Notion + Linear, or a clean Markdown export. The spec is owned by you, not by us.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="pricing" class="s">
+        <div class="kicker">pricing</div>
+        <h2>Three plans. <em>No "contact us" tier</em> until you actually need it.</h2>
+
+        <div class="price-grid">
+          <div class="price">
+            <div class="price-name">Solo</div>
+            <p style="color: var(--muted); font-size: 14px; margin: 0;">For PMs handling their own brief queue.</p>
+            <div class="price-tag">$0<span class="per"> /mo</span></div>
+            <ul>
+              <li>3 specs / month</li>
+              <li>Day-1 scope shape</li>
+              <li>Markdown export only</li>
+              <li>Source-citation links</li>
+            </ul>
+          </div>
+          <div class="price feat">
+            <div class="price-name">Pro</div>
+            <p style="color: var(--muted-2); font-size: 14px; margin: 0;">For PMs shipping more than they're writing.</p>
+            <div class="price-tag">$19<span class="per"> /mo</span></div>
+            <ul>
+              <li>Unlimited specs</li>
+              <li>All four spec shapes</li>
+              <li>Notion + Linear sync</li>
+              <li>Custom house style</li>
+              <li>Spec versioning + diffs</li>
+            </ul>
+          </div>
+          <div class="price">
+            <div class="price-name">Team</div>
+            <p style="color: var(--muted); font-size: 14px; margin: 0;">For 5+ PMs with shared style.</p>
+            <div class="price-tag">talk<span class="per"> · quoted</span></div>
+            <ul>
+              <li>Everything in Pro</li>
+              <li>Shared house style + glossary</li>
+              <li>SSO, SCIM, audit log</li>
+              <li>Shared review queues</li>
+              <li>SLAs on draft latency</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" class="s">
+        <div class="contact-card">
+          <div class="kicker" style="color: var(--highlight)">try it</div>
+          <h2 style="max-width: 26ch;">Send your messiest doc. <em>We'll send back a spec.</em></h2>
+          <p>One free spec, no card. Drop your work email. We email you back within a day with a tightened spec drafted from a doc you send us.</p>
+          <form class="contact-form" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Got it ✓'; this.reset();">
+            <input type="email" required placeholder="you@company.com" />
+            <input type="text" required placeholder="link to your messy doc (or paste below)" />
+            <button type="submit">Send</button>
+          </form>
+          <p class="micro">we read your doc once, send the spec back, and delete the source within 7 days.</p>
+        </div>
+      </section>
+
+      <footer>
+        <div>Lighthouse Spec · 2026 · drafted in 25 minutes by <a href="https://bidsmith.kushalsm.com">bidsmith</a></div>
+        <div><a href="https://bidsmith.kushalsm.com">what's bidsmith?</a></div>
+      </footer>
+    </div>
+  </body>
+</html>
