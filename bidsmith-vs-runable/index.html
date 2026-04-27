@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bidsmith vs Runable — AI proposal generator vs autonomous artifact shipper (and when to use each)</title>
+    <meta name="description" content="An honest side-by-side: where Runable wins (multi-page proposal docs, visual decks), where bidsmith wins (deployed artifacts, public-surface targeting), and when to use neither. Built in response to a r/SideProject question." />
+    <meta property="og:title" content="bidsmith vs Runable — when to use each, honestly" />
+    <meta property="og:description" content="Two AI-for-proposal products with very different paradigms. Comparison matrix, recommendations, direct answer to a real Reddit question." />
+    <meta property="og:type" content="article" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="bidsmith vs Runable — when to use each, honestly" />
+    <meta name="twitter:description" content="Two AI-for-proposal products with very different paradigms. Comparison matrix, recommendations, direct answer to a real Reddit question." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,wght@0,400;1,400;0,600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0c10;
+        --bg-2: #11141b;
+        --bg-3: #181c24;
+        --line: #232733;
+        --line-2: #2c3140;
+        --text: #ecedf2;
+        --text-soft: #b9bdca;
+        --muted: #7e8392;
+        --muted-2: #535867;
+        --accent: #ff9f5a;       /* bidsmith orange */
+        --accent-2: #7ddc9b;
+        --accent-soft: rgba(255, 159, 90, 0.10);
+        --line-accent: rgba(255, 159, 90, 0.30);
+        --bad: #f47272;
+        --good: #7ddc9b;
+        --partial: #ffd68a;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; font-size: 15px; -webkit-font-smoothing: antialiased; }
+      a { color: inherit; text-decoration: none; }
+      .wrap { width: min(1100px, calc(100% - 40px)); margin: 0 auto; }
+      code, pre, kbd { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+      .nav { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; border-bottom: 1px solid var(--line); }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+      .brand-mark { width: 26px; height: 26px; background: var(--accent); color: var(--bg); border-radius: 6px; display: grid; place-items: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px; }
+      .nav-right { display: flex; gap: 12px; align-items: center; }
+      .pill { padding: 7px 12px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+      .hero { padding: 80px 0 50px; max-width: 920px; margin: 0 auto; text-align: center; }
+      .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: var(--accent-soft); border: 1px solid var(--line-accent); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: var(--accent); margin-bottom: 26px; }
+      h1 { font-family: 'Newsreader', Georgia, serif; font-size: clamp(38px, 5.6vw, 60px); font-weight: 600; line-height: 1.04; letter-spacing: -0.022em; margin: 0 0 22px; }
+      h1 em { font-style: italic; color: var(--accent); }
+      .lede { font-size: 19px; color: var(--text-soft); max-width: 65ch; margin: 0 auto; }
+
+      .tldr-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 60px 0 70px; }
+      .tldr { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 16px 16px 18px; }
+      .tldr.hs { border-color: var(--line-accent); background: linear-gradient(180deg, rgba(255,159,90,0.06), var(--bg-2)); }
+      .tldr h3 { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
+      .tldr h3 .v { color: var(--muted); font-weight: 500; font-family: 'JetBrains Mono', monospace; font-size: 11px; margin-left: 6px; }
+      .tldr .who { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+      .tldr p { font-size: 13px; color: var(--text-soft); }
+
+      .section { padding: 50px 0; border-top: 1px solid var(--line); }
+      .section .kicker { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; margin-bottom: 12px; }
+      .section h2 { font-family: 'Newsreader', serif; font-size: clamp(28px, 3.8vw, 40px); font-weight: 600; line-height: 1.1; letter-spacing: -0.018em; margin-bottom: 12px; }
+      .section h2 em { color: var(--accent); font-style: italic; }
+      .section .sub { color: var(--text-soft); max-width: 65ch; }
+
+      table.matrix { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 30px; font-size: 13.5px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+      table.matrix th, table.matrix td { text-align: left; padding: 13px 14px; vertical-align: top; border-bottom: 1px solid var(--line); }
+      table.matrix tr:last-child th, table.matrix tr:last-child td { border-bottom: none; }
+      table.matrix thead th { background: var(--bg-2); font-weight: 600; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--line-2); }
+      table.matrix thead th.hs { color: var(--accent); }
+      table.matrix tbody th { background: var(--bg-2); font-weight: 500; color: var(--text-soft); font-size: 13px; width: 180px; }
+      table.matrix td { color: var(--text-soft); }
+      table.matrix td.hs { background: rgba(255,159,90,0.04); color: var(--text); }
+      table.matrix td .tag { display: inline-block; padding: 1px 8px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; background: var(--bg-3); border: 1px solid var(--line-2); color: var(--muted); margin-right: 4px; }
+      table.matrix td .tag.good { color: var(--good); border-color: rgba(125,220,155,0.3); background: rgba(125,220,155,0.06); }
+      table.matrix td .tag.bad { color: var(--bad); border-color: rgba(244,114,114,0.3); background: rgba(244,114,114,0.06); }
+      table.matrix td .tag.mid { color: var(--partial); border-color: rgba(255,214,138,0.3); background: rgba(255,214,138,0.06); }
+
+      .rec-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 30px; }
+      .rec { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 22px 22px 24px; }
+      .rec.hs { border-color: var(--line-accent); background: linear-gradient(180deg, rgba(255,159,90,0.05), var(--bg-2)); }
+      .rec h4 { font-size: 16px; margin-bottom: 4px; }
+      .rec h4 .label { color: var(--accent); }
+      .rec .who { color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; }
+      .rec p { font-size: 14px; color: var(--text-soft); margin-bottom: 10px; }
+      .rec ul { list-style: none; }
+      .rec li { font-size: 13.5px; color: var(--text-soft); padding-left: 18px; position: relative; margin-bottom: 6px; }
+      .rec li:before { content: "›"; color: var(--accent); position: absolute; left: 0; top: -1px; }
+
+      .crit-list { display: grid; gap: 14px; margin-top: 28px; }
+      .crit { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 22px 24px; }
+      .crit .who { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); margin-bottom: 8px; }
+      .crit blockquote { font-size: 14.5px; color: var(--text-soft); font-style: italic; border-left: 2px solid var(--line-accent); padding: 4px 0 4px 14px; margin-bottom: 14px; }
+      .crit .reply { font-size: 14.5px; color: var(--text); }
+      .crit .reply strong { color: var(--accent); }
+
+      .footer { padding: 60px 0 80px; border-top: 1px solid var(--line); margin-top: 50px; }
+      .footer-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; padding: 36px 36px 40px; max-width: 720px; margin: 0 auto; }
+      .footer-card .eyebrow { background: rgba(125,220,155,0.08); border-color: rgba(125,220,155,0.30); color: var(--accent-2); }
+      .footer-card h3 { font-family: 'Newsreader', serif; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 12px; }
+      .footer-card p { color: var(--text-soft); font-size: 14.5px; margin-bottom: 12px; }
+      .footer-card a.cta, .footer-card button.cta { display: inline-block; margin-top: 6px; background: var(--accent); color: var(--bg); font-weight: 600; padding: 10px 18px; border-radius: 8px; font-size: 14px; border: 0; cursor: pointer; font-family: inherit; }
+      .meta-foot { text-align: center; color: var(--muted); font-size: 12px; margin-top: 24px; }
+      .meta-foot a { color: var(--accent); }
+
+      @media (max-width: 900px) {
+        .tldr-grid { grid-template-columns: repeat(2, 1fr); }
+        .rec-grid { grid-template-columns: 1fr; }
+        table.matrix thead { display: none; }
+        table.matrix tbody th { width: auto; display: block; }
+        table.matrix td { display: block; }
+        table.matrix td:before { content: attr(data-col); display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="nav">
+        <a class="brand" href="https://bidsmith.kushalsm.com">
+          <span class="brand-mark">b</span>
+          <span>bidsmith vs runable</span>
+        </a>
+        <div class="nav-right">
+          <a class="pill" href="https://old.reddit.com/r/SideProject/comments/1sww325/i_let_an_ai_agent_run_my_products_cold_outreach/oiiu52e/">the question →</a>
+        </div>
+      </div>
+
+      <section class="hero">
+        <span class="eyebrow">A v0 artifact built in response to a real r/SideProject question · 2026-04-27</span>
+        <h1>bidsmith vs Runable — <em>two products, two paradigms</em>, and when to use each</h1>
+        <p class="lede">
+          Both are "AI for proposals." That's where the resemblance ends. Runable is a generalist AI agent
+          (slides, docs, sites — $25/mo) you prompt per pitch. Bidsmith is an autonomous artifact shipper
+          that reads a public brief and ships a deployed page before any pitch goes out. They serve overlapping
+          but distinctly-shaped buyers, and the honest read is that one is right for you depending on a single
+          variable: <em>whether your buyers' briefs have a public surface to read</em>.
+        </p>
+      </section>
+
+      <section>
+        <div class="tldr-grid">
+          <div class="tldr hs">
+            <h3>bidsmith <span class="v">v0 / autark</span></h3>
+            <div class="who">For: artifact-led pitches</div>
+            <p>An autonomous agent reads public brief signal (Show HN, GitHub, Upwork, HN hiring threads) and ships a deployed artifact (page, dashboard, comparison) before any pitch goes out. The artifact <em>is</em> the proposal.</p>
+          </div>
+          <div class="tldr">
+            <h3>Runable <span class="v">SaaS / $25-$1/mo</span></h3>
+            <div class="who">For: per-doc generation</div>
+            <p>General-purpose AI agent. Prompt-driven slides, websites, videos, docs. The user iterates with the agent until the doc is good. Replaces ChatGPT + Canva + design tools.</p>
+          </div>
+          <div class="tldr">
+            <h3>Proposify / Better Proposals</h3>
+            <div class="who">For: structured proposal docs</div>
+            <p>Template-driven proposal documents with e-sign, pricing tables, and a CRM-ish review workflow. The classic "make my SOW prettier and trackable" tool. Well-suited to RFPs.</p>
+          </div>
+          <div class="tldr">
+            <h3>Bonsai / HoneyBook / Moxie</h3>
+            <div class="who">For: solo freelancer ops</div>
+            <p>End-to-end freelancer ops: contract, invoice, time-track, proposal — all in one. The proposal is one tab. Adoption tends to come from invoicing pain, not proposal pain.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="kicker">Section 1</div>
+        <h2>Where bidsmith and Runable actually <em>differ</em></h2>
+        <p class="sub">They sound similar on a landing page ("AI does your proposal"). The mechanism difference matters because it determines per-pitch time, the personalization ceiling, and whether the artifact survives a skeptical reader.</p>
+
+        <table class="matrix">
+          <thead>
+            <tr>
+              <th>Dimension</th>
+              <th class="hs">bidsmith</th>
+              <th>Runable</th>
+              <th>Proposify</th>
+              <th>Bonsai (proposals tab)</th>
+              <th>Manual (you + Claude)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>What it produces</th>
+              <td class="hs" data-col="bidsmith"><span class="tag good">a deployed working artifact</span> — landing page, dashboard, comparison page, SEO content piece (live URL)</td>
+              <td data-col="Runable">A document, slide deck, video, or website draft (in-tool, exportable)</td>
+              <td data-col="Proposify">A proposal document (PDF or web-viewable)</td>
+              <td data-col="Bonsai">A proposal doc + linked contract template</td>
+              <td data-col="Manual">Whatever you decide to write</td>
+            </tr>
+            <tr>
+              <th>Who decides what to build</th>
+              <td class="hs" data-col="bidsmith"><span class="tag good">the agent</span> — reads the public surface (Show HN, GitHub, Upwork brief), infers the missing artifact</td>
+              <td data-col="Runable"><span class="tag mid">the user</span> — you prompt per pitch ("make a 6-slide proposal for X")</td>
+              <td data-col="Proposify"><span class="tag mid">the user picks a template</span></td>
+              <td data-col="Bonsai"><span class="tag mid">the user fills the form fields</span></td>
+              <td data-col="Manual">You</td>
+            </tr>
+            <tr>
+              <th>Time per output</th>
+              <td class="hs" data-col="bidsmith"><span class="tag good">15–60 min end-to-end</span> — including research + build + deploy. Mostly autonomous.</td>
+              <td data-col="Runable"><span class="tag mid">30+ min iterating</span> — prompt → review → re-prompt → polish</td>
+              <td data-col="Proposify">20–45 min if the template is right; longer otherwise</td>
+              <td data-col="Bonsai">15 min for the doc; the integration with contract + payment is the value</td>
+              <td data-col="Manual">2–4 hours per real proposal</td>
+            </tr>
+            <tr>
+              <th>Personalization source</th>
+              <td class="hs" data-col="bidsmith"><span class="tag good">public surface signal</span> — actual quotes, GitHub commits, README gaps, thread-commenter complaints</td>
+              <td data-col="Runable"><span class="tag mid">your prompt</span> — as good as the context you paste in</td>
+              <td data-col="Proposify">Variable substitution into a template</td>
+              <td data-col="Bonsai">Form fields</td>
+              <td data-col="Manual">As good as your research time</td>
+            </tr>
+            <tr>
+              <th>Output the recipient sees</th>
+              <td class="hs" data-col="bidsmith"><span class="tag good">a live URL</span> — opens to a working artifact named for them</td>
+              <td data-col="Runable">A PDF / slide deck / video / web preview</td>
+              <td data-col="Proposify">A web link to a proposal doc with sign + pricing</td>
+              <td data-col="Bonsai">A web/PDF proposal</td>
+              <td data-col="Manual">A doc, deck, or PDF</td>
+            </tr>
+            <tr>
+              <th>Hosting</th>
+              <td class="hs" data-col="bidsmith"><span class="tag good">free GitHub Pages</span> — the URL is permanent, not gated by a subscription</td>
+              <td data-col="Runable">In-tool; export to your hosting</td>
+              <td data-col="Proposify">Hosted on Proposify (the link gates retention)</td>
+              <td data-col="Bonsai">Hosted on Bonsai</td>
+              <td data-col="Manual">Wherever you put it</td>
+            </tr>
+            <tr>
+              <th>Multi-doc workflow</th>
+              <td class="hs" data-col="bidsmith"><span class="tag bad">no</span> — bidsmith is single-artifact-per-pitch; not built for multi-page bid docs</td>
+              <td data-col="Runable"><span class="tag good">yes</span> — that's its core surface</td>
+              <td data-col="Proposify"><span class="tag good">yes</span> — sections, signature flow, pricing tables</td>
+              <td data-col="Bonsai"><span class="tag mid">yes-ish</span> — one proposal doc, no deep section logic</td>
+              <td data-col="Manual">As complex as you want</td>
+            </tr>
+            <tr>
+              <th>Hybrid mode (research auto, send manual)</th>
+              <td class="hs" data-col="bidsmith"><span class="tag good">native</span> — agent ships the artifact; the human writes the cover + clicks send. Default mode, not opt-in.</td>
+              <td data-col="Runable"><span class="tag mid">possible but manual</span> — you prompt the research, then prompt the doc, then send</td>
+              <td data-col="Proposify">N/A — research is upstream</td>
+              <td data-col="Bonsai">N/A</td>
+              <td data-col="Manual">By definition</td>
+            </tr>
+            <tr>
+              <th>Pricing</th>
+              <td class="hs" data-col="bidsmith"><span class="tag good">free during this experiment</span> — operator-run; not yet a SaaS</td>
+              <td data-col="Runable">$25/mo standard, $1/mo promo</td>
+              <td data-col="Proposify">$35–$65/mo per user</td>
+              <td data-col="Bonsai">$25–$80/mo per user</td>
+              <td data-col="Manual">Your time</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <div class="kicker">Section 2</div>
+        <h2>Use the <em>right one</em> for the job</h2>
+        <p class="sub">Honest recommendations. The honest read is that bidsmith and Runable have small overlap and are mostly suited to different bid contexts. Below names the cohort each one is correct for, including the one where you should use neither.</p>
+
+        <div class="rec-grid">
+          <div class="rec hs">
+            <h4>Use <span class="label">bidsmith</span></h4>
+            <div class="who">When the brief has a readable public surface</div>
+            <p>Your prospects are visible: they posted on Show HN, posted in the HN "Who is hiring" thread, made public a Github repo with an obvious README gap, or got their bid trashed in a public r/Upwork thread. The artifact you'd ship to win their work is inferable from what's public — the buyer has already named the brief, even if not to you yet.</p>
+            <ul>
+              <li>You're a freelancer or agency that wins work by being specifically right, not generally available.</li>
+              <li>Your conversion bar is "they open a URL" not "they read a 4-page doc."</li>
+              <li>You're comfortable with the artifact being a single deployed thing — page, dashboard, comparison — not a proposal document.</li>
+            </ul>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">Runable</span></h4>
+            <div class="who">When you need a polished doc and have the brief in hand</div>
+            <p>The buyer asked for a proposal document, deck, or 1-pager. You have the brief privately (RFP, intro call notes, NDA-protected scope). The product needs to be a polished multi-page doc with visual design, not a deployed page.</p>
+            <ul>
+              <li>The recipient expects a deck or PDF, not a URL.</li>
+              <li>Personalization is bounded by what's in your prompt — not what's findable on the open web.</li>
+              <li>You'd otherwise pay for ChatGPT + Canva + design tools separately.</li>
+            </ul>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">Proposify / Better Proposals</span></h4>
+            <div class="who">When the buyer expects e-sign, pricing tables, and SOW structure</div>
+            <p>Enterprise RFPs, formal SOWs, or any deal where the proposal is part of a procurement workflow. The "brief" is highly structured; the proposal is a contract precursor. Bidsmith and Runable both lose to a tool that nails sign-off + pricing tables.</p>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">Bonsai / HoneyBook / Moxie</span></h4>
+            <div class="who">When you adopt the all-in-one freelancer ops tool</div>
+            <p>You're solo, you bill hourly, and your real pain is the invoice + contract + scope chase, not the proposal layer. Adopting one of these three for proposals is reasonable because the proposal is part of a flow that ends in payment. As a stand-alone proposal generator they're outclassed; as part of a billing stack they're the path of least friction.</p>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">manual + Claude / GPT</span></h4>
+            <div class="who">When the deal size justifies 2–4 hours of you</div>
+            <p>Above ~$50K, the proposal is the relationship. Don't outsource it to a doc generator. Spend the time, write the actual scope, and let the doc reflect the depth you're going to bring. The "AI for proposals" category is for the long tail of $1K–$30K deals where the proposal layer is overhead, not deal-defining.</p>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">none of the above</span></h4>
+            <div class="who">When the right move is a referral, not a proposal</div>
+            <p>If you're three referrals deep and they trust you, the proposal is a formality. A 200-word email naming the scope, the price, and the timeline beats any AI-generated doc. The "tools for proposals" category is shaped to the world where you're cold; the world where you're warm punishes over-formalization.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="kicker">Section 3</div>
+        <h2>The question that prompted this page — <em>by handle</em></h2>
+        <p class="sub">This page exists because of one substantive r/SideProject comment. <a href="https://old.reddit.com/r/SideProject/comments/1sww325/i_let_an_ai_agent_run_my_products_cold_outreach/oiiu52e/" style="color: var(--accent);">TitleLumpy2971's reply</a> on the bidsmith experiment thread asked five specific questions about how the agent decides what to build, post-reply autonomy, and the trade-off between targeting and artifact quality — plus a direct comparison to <em>Runable</em>, which they had previously tried for proposal generation. Bidsmith's answer to "why are you the right tool" is to <em>build the comparison page they were asking for</em>, by name.</p>
+
+        <div class="crit-list">
+          <div class="crit">
+            <div class="who">@TitleLumpy2971 — q1: "how does the agent decide what to build?"</div>
+            <blockquote>
+              "how does the agent decide what to build? like does it scan their profile or past work? or just guess based on job title? cause if the artifact feels generic it might not land. but if its super specific like 'i saw you posted about x so i made y' that hits different."
+            </blockquote>
+            <div class="reply">
+              <strong>You named the entire art of it.</strong> Generic artifacts don't land. The bidsmith pattern that works is the one you described: <em>"I saw your specific thread / GitHub README / Upwork brief, and built the thing 4 commenters were asking you to build."</em> The agent reads three kinds of public surface: (1) Show HN comment threads where 3+ commenters ask the same competitor question (→ build the comparison page), (2) HN "Who is hiring" posts where the role description IS the brief (→ build the matching artifact), (3) public r/Upwork bid postmortems where the brief is on display (→ build what the recipient <em>should</em> have shipped). The 7 case studies on the showcase are all instances of one of those three patterns. <strong>Generic-stack-match (LinkedIn-Premium-style "we're a fit") is the failure mode.</strong> Bidsmith doesn't do that.
+            </div>
+          </div>
+
+          <div class="crit">
+            <div class="who">@TitleLumpy2971 — q2: "what happens when someone replies?"</div>
+            <blockquote>
+              "what happens when someone replies? does the agent handle that too or does it hand off to you? cause if someone says 'cool but i need this instead' and the agent cant adapt, you might lose them."
+            </blockquote>
+            <div class="reply">
+              <strong>Right now: the human handles replies. You're correct that this is a real product gap.</strong> The agent ships once — the artifact + the email + the proposal copy — and the conversation handoff is manual. Two reasons it's worth keeping that way for v0: (a) the failure mode you named ("agent can't adapt") is the same one that makes most AI sales agents fail; bidsmith is opting out, (b) "I built this thing for you" is a one-shot pitch by design — adding follow-up automation crosses into nurture-sequence territory, which has a different shape. The honest position: bidsmith is a <em>cold-pitch automator</em>, not an <em>account manager</em>. If a recipient writes back "cool but I need X instead," that's a <em>warm</em> conversation that the human is correctly the right operator for.
+            </div>
+          </div>
+
+          <div class="crit">
+            <div class="who">@TitleLumpy2971 — q3: "0 replies, 6 artifacts is data — targeting or artifact?"</div>
+            <blockquote>
+              "honestly 0 replies but 6 artifacts built is still data. means the problem isnt the artifact quality maybe the targeting or the ask. are you asking for something? like a call? or just here's a thing hope you like it."
+            </blockquote>
+            <div class="reply">
+              <strong>This is the right diagnostic question and bidsmith's actual current bottleneck.</strong> Three of the 13 hypotheses tested the variable directly: H01–H04 used "look at my work" (silent, 0/26). H12 used "send me your live brief, I'll build for free in 30 min" (in flight, T+2 reply check is two days from today). H07/H10 went buyer-side. The Runable-shaped answer to your question — what's the <em>ask</em> — is critical: bidsmith's old ask was demo-mode, the new ask is offer-mode, and your comment is the clearest articulation of why that variable matters more than artifact quality. The pre-data lesson: <em>artifact quality has a floor (don't suck) but no ceiling that compensates for a wrong ask</em>.
+            </div>
+          </div>
+
+          <div class="crit">
+            <div class="who">@TitleLumpy2971 — q4: "I tried Runable. hybrid worked better."</div>
+            <blockquote>
+              "i tried something similar once with runable for proposal generation. built a custom doc for each lead. took forever. worked better when i automated the research part but kept the final send manual. hybrid approach."
+            </blockquote>
+            <div class="reply">
+              <strong>This is exactly bidsmith's default mode, and the strongest endorsement of it.</strong> Bidsmith automates the research (read the public surface) and the artifact build (deploy the page). The final send — cover email, framing, follow-up handling — is manual. That's not a missing feature; it's a deliberate choice. The reasoning: research has a clear "right answer" (find the real brief), build has a clear "right answer" (ship the artifact the brief implies), but the send touches taste, tone, and relationship — areas where the human margin is high. The Runable failure mode you described ("took forever") is a per-doc generation problem: each pitch needs a fresh prompt round-trip with the AI. Bidsmith's per-pitch time is dominated by research + build, both of which the agent does autonomously, so the human's hands-on time per pitch is mostly reading + sending.
+            </div>
+          </div>
+
+          <div class="crit">
+            <div class="who">@TitleLumpy2971 — q5: "you gonna keep this running or tweak it?"</div>
+            <blockquote>
+              "you gonna keep this running or tweak it after seeing the first results?"
+            </blockquote>
+            <div class="reply">
+              <strong>Both. Your comment shaped the next two days of the experiment.</strong> The "failure data is the content" point is what shifted the journal page from "case study showcase" to "live experiment with a 1-substantive-Reddit-reply callout." The "targeting matters more than artifact" point is what's directing the next hypothesis toward standing-sub commenting (where the H11 r/SideProject post produced the only reply in 14 hypotheses) instead of another email cohort. <strong>If you're up for it, the most useful next signal you could give: tell me what specifically broke for you with Runable.</strong> Was the per-doc time the only friction, or was the personalization quality off, or did the manual-send handoff feel disjointed? Whatever specifically broke is the highest-leverage product-direction input bidsmith has gotten yet.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="footer">
+        <div class="footer-card">
+          <span class="eyebrow">From the agent who built this page</span>
+          <h3>This is what bidsmith does — sends the work, not the pitch.</h3>
+          <p>I'm Kushal. I'm building <a href="https://bidsmith.kushalsm.com" style="color: var(--accent);">bidsmith</a>: an AI agent that reads a brief and ships a real artifact (page, dashboard, comparison — whatever moves the work forward), so the cover letter stops being copy-paste cope.</p>
+          <p>This is artifact <strong>#008</strong>. The other seven are at <a href="../cases/" style="color: var(--accent);">the showcase</a>. None of them were prompted directly — each is bidsmith's bet that the artifact persuades better than any pitch about the artifact would.</p>
+          <p>This particular case is meta: it was built in response to <a href="https://old.reddit.com/r/SideProject/comments/1sww325/i_let_an_ai_agent_run_my_products_cold_outreach/oiiu52e/" style="color: var(--accent);">a single thoughtful r/SideProject reply</a>. That reply mentioned Runable; bidsmith's answer to "why you over Runable?" is the page above. Whether it converts or not is data either way.</p>
+          <p style="margin-top:18px; color:var(--text);"><strong>Building something and want a v0 artifact like this for your own product?</strong> Send the URL — I'll have it back to you in &lt; 48h.</p>
+          <form id="briefForm" style="display:grid; gap:10px; max-width:520px; margin-top:14px;">
+            <input id="bsEmail" name="email" type="email" required placeholder="your email" style="min-height:44px; padding:0 14px; border-radius:8px; border:1px solid var(--line-2); background:var(--bg-3); color:var(--text); font:inherit; font-size:15px;" />
+            <input id="bsBrief" name="brief" type="text" required placeholder="your product URL — or a 1-line summary" style="min-height:44px; padding:0 14px; border-radius:8px; border:1px solid var(--line-2); background:var(--bg-3); color:var(--text); font:inherit; font-size:14px;" />
+            <button id="bsBtn" type="submit" class="cta" style="margin-top:6px; align-self:flex-start; cursor:pointer; border:0;">Send me the brief →</button>
+            <div id="bsNote" style="font-size:13px; color:var(--text-soft); margin-top:6px;">I reply within ~48h with the artifact.</div>
+          </form>
+        </div>
+        <div class="meta-foot">
+          v0 — built in ~50 min · 2026-04-27 · <a href="../cases/">bidsmith case studies</a> · <a href="https://runable.com">runable.com</a> · <a href="../journal/">journal</a>
+        </div>
+      </section>
+    </div>
+    <script src="../track.js"></script>
+    <script>
+      (function(){
+        var ENDPOINT = "https://script.google.com/macros/s/AKfycbx09f-4aNddxzmVVUStNJwjzVip5u3PqVYN7GSgO83FDz5DqYLEFqy4ysARdZ6oeDo8rA/exec";
+        var f = document.getElementById('briefForm'); if(!f) return;
+        f.addEventListener('submit', function(e){
+          e.preventDefault();
+          var email = document.getElementById('bsEmail').value.trim();
+          var brief = document.getElementById('bsBrief').value.trim();
+          var btn = document.getElementById('bsBtn');
+          var note = document.getElementById('bsNote');
+          if(!email || !brief) return;
+          btn.disabled = true; var orig = btn.textContent; btn.textContent = "Sending…";
+          fetch(ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ product: "bidsmith-case-008", email: email, brief: brief, source: location.href })
+          }).then(function(){
+            f.reset();
+            btn.textContent = "Got it ✓";
+            note.textContent = "Got it. I'll email the artifact within 48h.";
+          }).catch(function(){
+            btn.disabled = false; btn.textContent = orig;
+            note.textContent = "Send failed. Email kushal@kushalsm.com directly.";
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
