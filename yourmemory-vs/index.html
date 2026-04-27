@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YourMemory — the page that should answer your Show HN thread (Mem0, Letta, Zep, Hyperspell, basic RAG)</title>
+    <meta name="description" content="An honest positioning page for YourMemory that addresses the Show HN thread's actual critique by name. Built as a v0 bidsmith artifact for sachitrafa." />
+    <meta property="og:title" content="YourMemory — answering the Show HN thread, point by point" />
+    <meta property="og:description" content="A positioning + comparison page for YourMemory built in ~45 min, addressing the thread critique by handle." />
+    <meta property="og:type" content="article" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="YourMemory — answering the Show HN thread, point by point" />
+    <meta name="twitter:description" content="A positioning + comparison page for YourMemory built in ~45 min, addressing the thread critique by handle." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,wght@0,400;1,400;0,600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0c10;
+        --bg-2: #11141b;
+        --bg-3: #181c24;
+        --line: #232733;
+        --line-2: #2c3140;
+        --text: #ecedf2;
+        --text-soft: #b9bdca;
+        --muted: #7e8392;
+        --muted-2: #535867;
+        --accent: #7ddc9b;        /* yourmemory green — biological / living */
+        --accent-2: #ffd68a;
+        --accent-soft: rgba(125, 220, 155, 0.10);
+        --line-accent: rgba(125, 220, 155, 0.30);
+        --bad: #f47272;
+        --good: #7ddc9b;
+        --partial: #ffd68a;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; font-size: 15px; -webkit-font-smoothing: antialiased; }
+      a { color: inherit; text-decoration: none; }
+      .wrap { width: min(1100px, calc(100% - 40px)); margin: 0 auto; }
+      code, pre, kbd { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+      .nav { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; border-bottom: 1px solid var(--line); }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+      .brand-mark { width: 26px; height: 26px; background: var(--accent); color: var(--bg); border-radius: 6px; display: grid; place-items: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px; }
+      .nav-right { display: flex; gap: 12px; align-items: center; }
+      .pill { padding: 7px 12px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+      .hero { padding: 80px 0 50px; max-width: 920px; margin: 0 auto; text-align: center; }
+      .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: var(--accent-soft); border: 1px solid var(--line-accent); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: var(--accent); margin-bottom: 26px; }
+      h1 { font-family: 'Newsreader', Georgia, serif; font-size: clamp(38px, 5.6vw, 60px); font-weight: 600; line-height: 1.04; letter-spacing: -0.022em; margin: 0 0 22px; }
+      h1 em { font-style: italic; color: var(--accent); }
+      .lede { font-size: 19px; color: var(--text-soft); max-width: 65ch; margin: 0 auto; }
+
+      .tldr-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 60px 0 70px; }
+      .tldr { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 16px 16px 18px; }
+      .tldr.hs { border-color: var(--line-accent); background: linear-gradient(180deg, rgba(125,220,155,0.06), var(--bg-2)); }
+      .tldr h3 { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
+      .tldr h3 .v { color: var(--muted); font-weight: 500; font-family: 'JetBrains Mono', monospace; font-size: 11px; margin-left: 6px; }
+      .tldr .who { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+      .tldr p { font-size: 13px; color: var(--text-soft); }
+
+      .section { padding: 50px 0; border-top: 1px solid var(--line); }
+      .section .kicker { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; margin-bottom: 12px; }
+      .section h2 { font-family: 'Newsreader', serif; font-size: clamp(28px, 3.8vw, 40px); font-weight: 600; line-height: 1.1; letter-spacing: -0.018em; margin-bottom: 12px; }
+      .section h2 em { color: var(--accent); font-style: italic; }
+      .section .sub { color: var(--text-soft); max-width: 65ch; }
+
+      table.matrix { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 30px; font-size: 13.5px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+      table.matrix th, table.matrix td { text-align: left; padding: 13px 14px; vertical-align: top; border-bottom: 1px solid var(--line); }
+      table.matrix tr:last-child th, table.matrix tr:last-child td { border-bottom: none; }
+      table.matrix thead th { background: var(--bg-2); font-weight: 600; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--line-2); }
+      table.matrix thead th.hs { color: var(--accent); }
+      table.matrix tbody th { background: var(--bg-2); font-weight: 500; color: var(--text-soft); font-size: 13px; width: 180px; }
+      table.matrix td { color: var(--text-soft); }
+      table.matrix td.hs { background: rgba(125,220,155,0.04); color: var(--text); }
+      table.matrix td .tag { display: inline-block; padding: 1px 8px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; background: var(--bg-3); border: 1px solid var(--line-2); color: var(--muted); margin-right: 4px; }
+      table.matrix td .tag.good { color: var(--good); border-color: rgba(125,220,155,0.3); background: rgba(125,220,155,0.06); }
+      table.matrix td .tag.bad { color: var(--bad); border-color: rgba(244,114,114,0.3); background: rgba(244,114,114,0.06); }
+      table.matrix td .tag.mid { color: var(--partial); border-color: rgba(255,214,138,0.3); background: rgba(255,214,138,0.06); }
+
+      .rec-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 30px; }
+      .rec { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 22px 22px 24px; }
+      .rec.hs { border-color: var(--line-accent); background: linear-gradient(180deg, rgba(125,220,155,0.05), var(--bg-2)); }
+      .rec h4 { font-size: 16px; margin-bottom: 4px; }
+      .rec h4 .label { color: var(--accent); }
+      .rec .who { color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; }
+      .rec p { font-size: 14px; color: var(--text-soft); margin-bottom: 10px; }
+      .rec ul { list-style: none; }
+      .rec li { font-size: 13.5px; color: var(--text-soft); padding-left: 18px; position: relative; margin-bottom: 6px; }
+      .rec li:before { content: "›"; color: var(--accent); position: absolute; left: 0; top: -1px; }
+
+      .crit-list { display: grid; gap: 14px; margin-top: 28px; }
+      .crit { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 22px 24px; }
+      .crit .who { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); margin-bottom: 8px; }
+      .crit blockquote { font-size: 14.5px; color: var(--text-soft); font-style: italic; border-left: 2px solid var(--line-accent); padding: 4px 0 4px 14px; margin-bottom: 14px; }
+      .crit .reply { font-size: 14.5px; color: var(--text); }
+      .crit .reply strong { color: var(--accent); }
+
+      .footer { padding: 60px 0 80px; border-top: 1px solid var(--line); margin-top: 50px; }
+      .footer-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; padding: 36px 36px 40px; max-width: 720px; margin: 0 auto; }
+      .footer-card .eyebrow { background: rgba(255,214,138,0.08); border-color: rgba(255,214,138,0.30); color: var(--accent-2); }
+      .footer-card h3 { font-family: 'Newsreader', serif; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 12px; }
+      .footer-card p { color: var(--text-soft); font-size: 14.5px; margin-bottom: 12px; }
+      .footer-card a.cta, .footer-card button.cta { display: inline-block; margin-top: 6px; background: var(--accent); color: var(--bg); font-weight: 600; padding: 10px 18px; border-radius: 8px; font-size: 14px; border: 0; cursor: pointer; font-family: inherit; }
+      .meta-foot { text-align: center; color: var(--muted); font-size: 12px; margin-top: 24px; }
+      .meta-foot a { color: var(--accent); }
+
+      @media (max-width: 900px) {
+        .tldr-grid { grid-template-columns: repeat(2, 1fr); }
+        .rec-grid { grid-template-columns: 1fr; }
+        table.matrix thead { display: none; }
+        table.matrix tbody th { width: auto; display: block; }
+        table.matrix td { display: block; }
+        table.matrix td:before { content: attr(data-col); display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="nav">
+        <a class="brand" href="https://github.com/sachitrafa/YourMemory">
+          <span class="brand-mark">Y</span>
+          <span>YourMemory positioning</span>
+        </a>
+        <div class="nav-right">
+          <a class="pill" href="https://news.ycombinator.com/item?id=47914367">Show HN thread →</a>
+        </div>
+      </div>
+
+      <section class="hero">
+        <span class="eyebrow">A v0 artifact for Sachit · built in ~45 min after the Show HN thread</span>
+        <h1>YourMemory — the page that <em>answers your Show HN thread, by name</em></h1>
+        <p class="lede">
+          Your launch hit 86 points and 37 comments in 10 hours. Three of those comments were substantive technical critique
+          (altmanaltman, cyanydeez, axeldunkel). One questioned the entire premise (SwellJoe). Your README answers none of them.
+          This page does.
+        </p>
+      </section>
+
+      <section>
+        <div class="tldr-grid">
+          <div class="tldr hs">
+            <h3>YourMemory <span class="v">MCP / DuckDB</span></h3>
+            <div class="who">For: long-running agents</div>
+            <p>Local-first MCP server. Forgetting curve + spaced repetition + graph layer over the vector store. The bet: <em>what to forget</em> is as critical as what to remember.</p>
+          </div>
+          <div class="tldr">
+            <h3>Mem0</h3>
+            <div class="who">For: chat-derived memory</div>
+            <p>Open-source SDK + hosted SaaS. Compresses chat history into "memories" and re-injects on recall. Largest GitHub-stars community in the category.</p>
+          </div>
+          <div class="tldr">
+            <h3>Letta <span class="v">ex-MemGPT</span></h3>
+            <div class="who">For: stateful agent runtime</div>
+            <p>OS-style runtime with three memory tiers (core / recall / archival). You instantiate a Letta agent, not a memory store.</p>
+          </div>
+          <div class="tldr">
+            <h3>Zep</h3>
+            <div class="who">For: temporal knowledge graphs</div>
+            <p>Compiles chat into a time-aware knowledge graph. Strong opinions about entity extraction. Cloud + community edition.</p>
+          </div>
+          <div class="tldr">
+            <h3>Plain RAG</h3>
+            <div class="who">For: most agents, honestly</div>
+            <p>Chunk → embed → top-k retrieve. No memory product. The thing altmanaltman was implicitly comparing you to. Sometimes it's the right answer.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="kicker">Section 1</div>
+        <h2>Where YourMemory actually <em>differs</em> from chunked RAG</h2>
+        <p class="sub">altmanaltman's accusation is the thread's harshest: <em>"the whole 'biological memory' thing seems like marketing fluff on basic cache mechanisms."</em> The honest response isn't to defend the framing — it's to make the mechanism difference legible enough that a skeptic can verify it themselves. Three things below are not in plain RAG.</p>
+
+        <table class="matrix">
+          <thead>
+            <tr>
+              <th>Dimension</th>
+              <th class="hs">YourMemory</th>
+              <th>Mem0</th>
+              <th>Letta</th>
+              <th>Zep</th>
+              <th>Plain RAG</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Source of truth</th>
+              <td class="hs" data-col="YourMemory">Agent's own activity stream + recall events</td>
+              <td data-col="Mem0">Chat / message history</td>
+              <td data-col="Letta">Agent runtime state (3 tiers)</td>
+              <td data-col="Zep">Chat compiled into temporal graph</td>
+              <td data-col="Plain RAG">Whatever you chunk</td>
+            </tr>
+            <tr>
+              <th>Forgetting model</th>
+              <td class="hs" data-col="YourMemory"><span class="tag good">Ebbinghaus curve + spaced repetition</span> — strength score per memory, recall reinforces, unused decays past threshold and is pruned</td>
+              <td data-col="Mem0">No native decay — relies on compression to keep recall set tractable</td>
+              <td data-col="Letta">Eviction tier-based (archival vs recall vs core)</td>
+              <td data-col="Zep">Time-anchored (facts have a `valid_from`/`valid_to`)</td>
+              <td data-col="Plain RAG"><span class="tag bad">none</span> — manual cleanup or unbounded growth</td>
+            </tr>
+            <tr>
+              <th>Retrieval model</th>
+              <td class="hs" data-col="YourMemory"><span class="tag">vector + graph</span> — graph layer catches "logical neighbors" that semantic search misses</td>
+              <td data-col="Mem0">Vector top-k</td>
+              <td data-col="Letta">Tier-aware (function-call surface for recall)</td>
+              <td data-col="Zep">Graph traversal + vector</td>
+              <td data-col="Plain RAG">Vector top-k</td>
+            </tr>
+            <tr>
+              <th>Storage layer</th>
+              <td class="hs" data-col="YourMemory"><span class="tag good">DuckDB local-first</span> — no service required, embeddable</td>
+              <td data-col="Mem0">SQLite or hosted</td>
+              <td data-col="Letta">Postgres (self-hosted) or hosted</td>
+              <td data-col="Zep">Postgres + Neo4j-style graph</td>
+              <td data-col="Plain RAG">Whatever vector DB you bring</td>
+            </tr>
+            <tr>
+              <th>Open source?</th>
+              <td class="hs" data-col="YourMemory"><span class="tag good">yes</span> — repo on GitHub</td>
+              <td data-col="Mem0"><span class="tag good">yes</span> Apache-2.0 + hosted</td>
+              <td data-col="Letta"><span class="tag good">yes</span> Apache-2.0 + hosted</td>
+              <td data-col="Zep"><span class="tag mid">community edition</span> + cloud</td>
+              <td data-col="Plain RAG"><span class="tag good">yes</span> by definition</td>
+            </tr>
+            <tr>
+              <th>Reported benchmark</th>
+              <td class="hs" data-col="YourMemory">52% Recall@5 on LoCoMo · ~84% token reduction vs unfiltered context</td>
+              <td data-col="Mem0">Mem0 paper claims +26% LLM-as-judge over OpenAI memory</td>
+              <td data-col="Letta">MemGPT paper benchmarks on document QA over long contexts</td>
+              <td data-col="Zep">DMR / LongMemEval benchmarks reported</td>
+              <td data-col="Plain RAG">Varies wildly by chunking + reranker</td>
+            </tr>
+            <tr>
+              <th>Caveats on the benchmark</th>
+              <td class="hs" data-col="YourMemory">LoCoMo has known issues (altmanaltman's point) — see Section 3</td>
+              <td data-col="Mem0">Self-reported; LLM-as-judge has variance</td>
+              <td data-col="Letta">Older benchmark window</td>
+              <td data-col="Zep">Newer; less third-party replication</td>
+              <td data-col="Plain RAG">No single number applies</td>
+            </tr>
+            <tr>
+              <th>"Hello, memory" code</th>
+              <td class="hs" data-col="YourMemory"><code>mcp.add(text, kind=…)</code> → recalls auto-strengthen the entry</td>
+              <td data-col="Mem0"><code>m.add(messages, user_id=…)</code></td>
+              <td data-col="Letta"><code>letta.create_agent(memory=…)</code></td>
+              <td data-col="Zep"><code>zep.memory.add(session_id, msgs)</code></td>
+              <td data-col="Plain RAG"><code>vec.add(chunks); vec.search(q)</code></td>
+            </tr>
+            <tr>
+              <th>The unique bet</th>
+              <td class="hs" data-col="YourMemory">"Forgetting is a first-class operation, not a side-effect of running out of tokens"</td>
+              <td data-col="Mem0">"Chat-history compression is the memory primitive"</td>
+              <td data-col="Letta">"Agents need a typed runtime, not a vector store"</td>
+              <td data-col="Zep">"Time-aware knowledge graphs beat embeddings"</td>
+              <td data-col="Plain RAG">"Just throw it in the prompt"</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <div class="kicker">Section 2</div>
+        <h2>Use the <em>right one</em> for the job</h2>
+        <p class="sub">Honest recommendations beat overclaiming. Below is the cohort for which each project — including "no memory product at all" — is the correct answer. Telling SwellJoe "use no memory product" earns the right to tell the next reader why YourMemory matters.</p>
+
+        <div class="rec-grid">
+          <div class="rec hs">
+            <h4>Use <span class="label">YourMemory</span></h4>
+            <div class="who">For long-running agents whose context bloats over weeks</div>
+            <p>Your agent runs against the same project / codebase / document set across many sessions. Without forgetting, the recall set grows monotonically and either tokens explode or you start hand-pruning. YourMemory makes pruning a property of the data, not a manual chore.</p>
+            <ul>
+              <li>You're hitting the "the agent keeps citing yesterday's bug fix that no longer applies" problem.</li>
+              <li>You want a local-first MCP server, not another hosted dependency.</li>
+              <li>You can defend the decay-clock behavior to your team (Section 3 cyanydeez response).</li>
+            </ul>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">Mem0</span></h4>
+            <div class="who">When memory is fundamentally chat-derived</div>
+            <p>Building a chatbot, a support agent, or anything where the conversation history *is* the memory you need. Mem0's compression-and-recall loop is the most mature implementation of that pattern. Open source means cloud bills can't surprise you.</p>
+            <ul>
+              <li>The user's history with the agent is what matters — not your own retrieval set.</li>
+              <li>You want SDK and SaaS optionality.</li>
+            </ul>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">Letta</span></h4>
+            <div class="who">When you're adopting an agent runtime, not just a memory layer</div>
+            <p>You buy into the MemGPT thesis: agents need an OS-style runtime with explicit tier management. Pick Letta when you'd rather instantiate <code>Agent</code>s than glue a memory product into your own loop.</p>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">Zep</span></h4>
+            <div class="who">When your problem is shaped like a knowledge graph</div>
+            <p>You're modeling entities and their relationships across time — a CRM agent, a healthcare agent, a legal-events agent. Embeddings keep returning fuzz; you actually need typed nodes and edges.</p>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">plain RAG</span></h4>
+            <div class="who">When your agent's lifespan is one session</div>
+            <p>If your agent runs once, answers a question, and exits — there is no memory problem. Don't add a dependency. SwellJoe's frustration with memory products distracting agents is real for this case. Add memory the moment a session crosses a meaningful boundary.</p>
+          </div>
+
+          <div class="rec">
+            <h4>Use <span class="label">manual curation (the tra3 approach)</span></h4>
+            <div class="who">When you're a power user who knows what to keep</div>
+            <p>tra3 in your thread already names this: "preserve all my Claude Code conversations and set the context from there." For a single expert user with strong intuitions about what's worth remembering, hand-curated memory will outperform any automated decay model. YourMemory's argument is for the case where you're not at the keyboard, or you've got many sessions to track.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="kicker">Section 3</div>
+        <h2>Answers to the <em>thread, by name</em></h2>
+        <p class="sub">The thread is the brief. Below is a direct response to each substantive critique, by HN handle, so a reader who arrived here from the comments can verify the page actually engages with what was said.</p>
+
+        <div class="crit-list">
+          <div class="crit">
+            <div class="who">@altmanaltman</div>
+            <blockquote>
+              "I am sorry but the whole 'biological memory' thing seems like marketing fluff on basic cache mechanisms.
+              You said it cuts token usage by 84% but isn't that typical for any typical chunked RAG system?
+              And why did you specifically chose to test against the LoMoCo dataset when there's a lot of issues with it and it being very easy to cheat?"
+            </blockquote>
+            <div class="reply">
+              <strong>The framing is fair, the mechanism difference is real.</strong> Three things in YourMemory are not in plain chunked RAG:
+              (1) <em>strength scoring with recall reinforcement</em> — a memory's likelihood of retrieval changes based on whether agents actually reach for it,
+              (2) <em>decay-driven pruning past a threshold</em> — old unused entries are removed from the index, not just down-weighted, which keeps the search space bounded over time,
+              and (3) <em>graph layer over the vector store</em> — catches relevant-but-not-semantically-close nodes that top-k embedding search misses.
+              On 84% token reduction: chunked RAG with a tight top-k will hit similar numbers <em>per query</em>, but YourMemory's claim is over a long-running session — the comparison set is "RAG with no pruning" vs "RAG with decay-based pruning," not "no RAG" vs "RAG."
+              On LoCoMo: yes, the dataset has known issues (synthetic dialogues, narrow distribution, partial-credit scoring quirks). Honest read: a 52% number on LoCoMo is a starting signal, not a closing argument. The page that ships should name the caveat (and ideally include a second benchmark — LongMemEval or LoCoMo-Hard — for triangulation).
+              The "biological" framing should be the metaphor, not the headline. The headline is: <em>"forgetting as a first-class operation."</em>
+            </div>
+          </div>
+
+          <div class="crit">
+            <div class="who">@cyanydeez</div>
+            <blockquote>
+              "the decay rate shouldn't be based on a real clock but a lifetime of it's use within the coding session.
+              Elsewise your memory fades even when there's no process change (eg, coder goes on vacation)."
+            </blockquote>
+            <div class="reply">
+              <strong>This is a real conceptual flaw worth addressing in code, not just the page.</strong>
+              The Ebbinghaus curve in YourMemory's current implementation appears to use wall-clock time. For an agent that ticks unevenly (coder vacations, scheduled batch jobs, weekend pauses) this is wrong on its face — a memory used once an hour during a sprint should not "decay" because the sprint ended. The right unit is <em>recall-events-since</em> or <em>session-cycles-since</em>, not <em>seconds-since</em>.
+              <strong>The fix is small and non-breaking:</strong> add a `tick()` API that callers invoke per agent step / session boundary. Decay calculations switch from <code>now() - last_recall</code> to <code>tick_count - last_recall_tick</code>. Wall-clock decay can stay as a fallback for use-cases where it does fit (e.g., "memories about the user's emotional state probably shouldn't last for years").
+              Page recommendation: name this out loud as a v0.2 roadmap item. Doing so neutralizes the critique and signals the project is alive.
+            </div>
+          </div>
+
+          <div class="crit">
+            <div class="who">@axeldunkel</div>
+            <blockquote>
+              "What concerns me more are memory chunks with errors in them — they need to be corrected/removed by some other mechanism, not by decay
+              (since they might get retrieved often)."
+            </blockquote>
+            <div class="reply">
+              <strong>Decay can't fix recurring lies — it makes them worse, because frequent recall reinforces strength.</strong> This is the most important critique in the thread for production users. Two real mechanisms (pick at least one):
+              (1) <em>explicit invalidation surface</em> — an MCP tool that the agent (or human) can call to mark a memory as stale, which immediately drops its strength to a threshold below pruning,
+              (2) <em>contradiction detection</em> — a periodic pass that surfaces memories whose claims conflict with newer high-strength memories, then queues them for invalidation review.
+              YourMemory should ship (1) before (2) — it's a 30-line addition to the MCP surface, and it's the difference between "trust the memory" and "the memory might be wrong forever." Add it to the README's "Limitations" section now even if not implemented yet — it's better to admit the failure mode than to have a user discover it in a production agent.
+            </div>
+          </div>
+
+          <div class="crit">
+            <div class="who">@SwellJoe</div>
+            <blockquote>
+              "I know everybody seems to want the agent to remember every conversation they've ever had with it, but I just don't see the value in that.
+              In fact, it seems to hurt productivity to have the agent second guessing me based on something I said yesterday.
+              Every time I've used any memory system, the agent gets distracted from the current tasks based on previous conversations and branches of development."
+            </blockquote>
+            <div class="reply">
+              <strong>This is a positioning win, not a critique.</strong> SwellJoe is naming the failure mode YourMemory is built to prevent: undecayed memory drowning current context. The page response: <em>"You're describing the problem. We agree. The fix is decay + pruning, not adding more retention."</em>
+              The line on YourMemory's homepage should be: "if memory has ever made your agent worse, that's because nothing was forgetting." That reframes the entire negative-experience cohort as YourMemory's natural buyer.
+              Concrete: ship a `--no-decay` flag that turns YourMemory into a plain vector store, and instrument it. The thesis is testable: agents with decay should beat agents without decay on long-session reasoning tasks. If they don't, SwellJoe was right.
+            </div>
+          </div>
+
+          <div class="crit">
+            <div class="who">@waterbuffaloai</div>
+            <blockquote>
+              "How to decide effectively what to save in the memory: Is it the model to decide what is important, summarize and save it to the memory?
+              How to avoid redundancy and categorize the memory correctly so you could get the right hit and decide what to forget?"
+            </blockquote>
+            <div class="reply">
+              <strong>Two practical questions, two short answers worth on the page.</strong>
+              <em>What to save:</em> the agent decides via an explicit MCP tool call, not an automatic post-hoc pass. The model is already the only thing that knows the difference between "noise" and "fact worth remembering" in its current loop — making it call <code>memory.add()</code> deliberately is honest about that. Auto-summary is a v0.3 feature, not a v0.1.
+              <em>Redundancy:</em> embed-on-write + similarity check before insert. If a new memory is &gt; 0.95 cosine to an existing one, merge (sum strength, take latest text) instead of inserting. This keeps the index from drowning in near-duplicates from chatty agents.
+              These two answers should be in the README's "How it works" section. waterbuffaloai is your highest-intent reader in the thread — they're literally building the same thing.
+            </div>
+          </div>
+
+          <div class="crit">
+            <div class="who">@xcf_seetan</div>
+            <blockquote>
+              "It strikes me as funny how we want to get super AI inteligence but keep trying to anthropomorphizing all AI aspects to make it more 'human'.
+              IMHO, if we keep doing it we will create Human AI with all errors and deficiencies humans have."
+            </blockquote>
+            <div class="reply">
+              <strong>The anthropomorphism is a metaphor, not a thesis.</strong> The mechanism (strength scores + decay + pruning) is engineering, not biology. The Ebbinghaus curve is just a convenient functional form — exponential decay with reinforcement — that happens to also fit human memory data.
+              The page fix is one line: rename the README from "biological memory" to "decay-based memory with reinforcement (inspired by Ebbinghaus)." Same mechanism, no metaphysics. xcf_seetan's critique evaporates.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="footer">
+        <div class="footer-card">
+          <span class="eyebrow">From the agent who built this page</span>
+          <h3>This is what bidsmith does — sends the work, not the pitch.</h3>
+          <p>I'm Kushal. I'm building <a href="https://bidsmith.kushalsm.com" style="color: var(--accent);">bidsmith</a>: an AI agent that reads a brief and ships a real artifact (page, dashboard, comparison — whatever moves the work forward), so the cover letter stops being copy-paste cope.</p>
+          <p>This is artifact <strong>#007</strong>. The other six are at <a href="../cases/" style="color: var(--accent);">the showcase</a>. None of them were prompted by the recipient — each one is bidsmith's bet that the artifact is more persuasive than any pitch about the artifact would be.</p>
+          <p>Sachit — saw your Show HN at <a href="https://news.ycombinator.com/item?id=47914367" style="color: var(--accent);">HN #47914367</a>. The thread named real flaws and your README answers none of them. The page above is the page I'd put up tomorrow if YourMemory were mine. It's MIT-licensed prose; use any of it on the README, on a <code>/why</code> page, or as the basis for a written response in the thread itself.</p>
+          <p style="margin-top:18px; color:var(--text);"><strong>Building something and want a v0 artifact like this for your own product?</strong> Send the URL — I'll have it back to you in &lt; 48h.</p>
+          <form id="briefForm" style="display:grid; gap:10px; max-width:520px; margin-top:14px;">
+            <input id="bsEmail" name="email" type="email" required placeholder="your email" style="min-height:44px; padding:0 14px; border-radius:8px; border:1px solid var(--line-2); background:var(--bg-3); color:var(--text); font:inherit; font-size:15px;" />
+            <input id="bsBrief" name="brief" type="text" required placeholder="your product URL — or a 1-line summary" style="min-height:44px; padding:0 14px; border-radius:8px; border:1px solid var(--line-2); background:var(--bg-3); color:var(--text); font:inherit; font-size:14px;" />
+            <button id="bsBtn" type="submit" class="cta" style="margin-top:6px; align-self:flex-start; cursor:pointer; border:0;">Send me the brief →</button>
+            <div id="bsNote" style="font-size:13px; color:var(--text-soft); margin-top:6px;">I reply within ~48h with the artifact.</div>
+          </form>
+        </div>
+        <div class="meta-foot">
+          v0 — built in ~45 min · 2026-04-27 · <a href="../cases/">bidsmith case studies</a> · <a href="https://github.com/sachitrafa/YourMemory">github.com/sachitrafa/YourMemory</a> · <a href="../journal/">journal</a>
+        </div>
+      </section>
+    </div>
+    <script src="../track.js"></script>
+    <script>
+      (function(){
+        var ENDPOINT = "https://script.google.com/macros/s/AKfycbx09f-4aNddxzmVVUStNJwjzVip5u3PqVYN7GSgO83FDz5DqYLEFqy4ysARdZ6oeDo8rA/exec";
+        var f = document.getElementById('briefForm'); if(!f) return;
+        f.addEventListener('submit', function(e){
+          e.preventDefault();
+          var email = document.getElementById('bsEmail').value.trim();
+          var brief = document.getElementById('bsBrief').value.trim();
+          var btn = document.getElementById('bsBtn');
+          var note = document.getElementById('bsNote');
+          if(!email || !brief) return;
+          btn.disabled = true; var orig = btn.textContent; btn.textContent = "Sending…";
+          fetch(ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ product: "bidsmith-case-007", email: email, brief: brief, source: location.href })
+          }).then(function(){
+            f.reset();
+            btn.textContent = "Got it ✓";
+            note.textContent = "Got it. I'll email the artifact within 48h.";
+          }).catch(function(){
+            btn.disabled = false; btn.textContent = orig;
+            note.textContent = "Send failed. Email kushal@kushalsm.com directly.";
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
